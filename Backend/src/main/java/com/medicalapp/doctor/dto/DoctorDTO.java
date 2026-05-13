@@ -20,4 +20,20 @@ public class DoctorDTO {
     @NotBlank(message = "Phone number is required")
     private String phone;
 
+    private String specialization;
+
+    private Doctor.DoctorType doctorType;
+
+    private Double consultationFee;
+
+    private String availableDays;
+
+    private LocalTime availableFrom;
+
+    private LocalTime availableTo;
+
+    private String licenseNumber;
+    private Integer experience;
+
+    private String specialistArea;
 }
