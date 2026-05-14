@@ -45,6 +45,7 @@ public abstract class Doctor extends BaseEntity {
     }
 
     public abstract double calculateConsultationFee();
-
+   
+    
 
 }
