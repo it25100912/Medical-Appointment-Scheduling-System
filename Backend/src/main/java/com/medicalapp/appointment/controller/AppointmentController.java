@@ -23,5 +23,23 @@ public class AppointmentController {
     public ResponseEntity<AppointmentDTO> bookAppointment(@Valid @RequestBody AppointmentDTO dto) {
         return new ResponseEntity<>(appointmentService.bookAppointment(dto), HttpStatus.CREATED);
     }
+    @GetMapping
+    public List<AppointmentDTO> getAllAppointments() {
+        return appointmentService.getAllAppointments();
+    }
 
-   
+    @GetMapping("/{id}")
+    public AppointmentDTO getAppointmentById(@PathVariable Long id) {
+        return appointmentService.getAppointmentById(id);
+    }
+
+    @GetMapping("/patient/{patientId}")
+    public List<AppointmentDTO> getAppointmentsByPatient(@PathVariable Long patientId) {
+        return appointmentService.getAppointmentsByPatient(patientId);
+    }
+
+    @GetMapping("/doctor/{doctorId}")
+    public List<AppointmentDTO> getAppointmentsByDoctor(@PathVariable Long doctorId) {
+        return appointmentService.getAppointmentsByDoctor(doctorId);
+    }
+
