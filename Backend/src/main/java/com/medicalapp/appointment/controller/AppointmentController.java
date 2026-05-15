@@ -43,3 +43,31 @@ public class AppointmentController {
         return appointmentService.getAppointmentsByDoctor(doctorId);
     }
 
+ @PutMapping("/{id}/reschedule")
+    public AppointmentDTO rescheduleAppointment(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        return appointmentService.rescheduleAppointment(id, 
+                java.time.LocalDate.parse(body.get("date")), 
+                java.time.LocalTime.parse(body.get("time")));
+    }
+
+    @PutMapping("/{id}/cancel")
+    public AppointmentDTO cancelAppointment(@PathVariable Long id) {
+        return appointmentService.cancelAppointment(id);
+    }
+
+    @PutMapping("/{id}/complete")
+    public AppointmentDTO completeAppointment(@PathVariable Long id) {
+        return appointmentService.completeAppointment(id);
+    }
+
+    @PutMapping("/{id}")
+    public AppointmentDTO updateAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentDTO dto) {
+        return appointmentService.updateAppointment(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
+        appointmentService.deleteAppointment(id);
+        return ResponseEntity.noContent().build();
+    }
+}
