@@ -29,7 +29,6 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         System.out.println("=== INITIALIZING SAMPLE DATA ===");
-
         System.out.println("=== SAMPLE DATA SEEDING COMPLETED ===");
     }
 }
