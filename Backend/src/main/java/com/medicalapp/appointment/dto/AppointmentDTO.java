@@ -18,5 +18,18 @@ public class AppointmentDTO {
     @NotNull(message = "Doctor ID is required")
     private Long doctorId;
 
+    @NotNull(message = "Appointment date is required")
+    private LocalDate appointmentDate;
+
+    @NotNull(message = "Appointment time is required")
+    private LocalTime appointmentTime;
+
+    private Appointment.AppointmentStatus status;
+
+    private Appointment.AppointmentType type;
+
+    private String reason;
+    private String notes;
+
 }
 }
