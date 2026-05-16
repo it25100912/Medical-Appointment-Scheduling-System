@@ -26,3 +26,29 @@ public class Appointment extends BaseEntity {
 
     @NotNull(message = "Appointment date is required")
     private LocalDate appointmentDate;
+ 
+    @NotNull(message = "Appointment time is required")
+    private LocalTime appointmentTime;
+
+    @Transient
+    private Long patientId;
+    @Transient
+    private Long doctorId;
+    private String reason;
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentType type;
+
+    private String notes;
+
+    public enum AppointmentStatus {
+        PENDING, CONFIRMED, CANCELLED, COMPLETED
+    }
+
+    public enum AppointmentType {
+        ONLINE, IN_PERSON
+    }
+}
