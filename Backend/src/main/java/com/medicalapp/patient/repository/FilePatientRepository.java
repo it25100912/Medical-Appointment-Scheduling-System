@@ -30,17 +30,9 @@ public class FilePatientRepository {
             patient.setId(System.currentTimeMillis());
             patients.add(patient);
         } else {
-            boolean updated = false;
-            for (int i = 0; i < patients.size(); i++) {
-                if (patients.get(i).getId().equals(patient.getId())) {
-                    patients.set(i, patient);
-                    updated = true;
-                    break;
-                }
-            }
-            if (!updated) {
-                patients.add(patient);
-            }
+            patients = patients.stream()
+                    .map(p -> p.getId().equals(patient.getId()) ? patient : p)
+                    .collect(Collectors.toList());
         }
         storage.writeToFile(patients, this::mapToString);
         return patient;
@@ -53,21 +45,9 @@ public class FilePatientRepository {
         storage.writeToFile(patients, this::mapToString);
     }
 
-    public Optional<Patient> findByNic(String nic) {
-        return findAll().stream().filter(p -> p.getNic() != null && p.getNic().equals(nic)).findFirst();
-    }
-
-    public Optional<Patient> findByPhone(String phone) {
-        return findAll().stream().filter(p -> p.getPhone() != null && p.getPhone().equals(phone)).findFirst();
-    }
-
-    public Optional<Patient> findByEmail(String email) {
-        return findAll().stream().filter(p -> p.getEmail() != null && p.getEmail().equals(email)).findFirst();
-    }
-
     // Comma Separated Format for Notepad
     private String mapToString(Patient p) {
-        return String.format("%d,%s,%s,%s,%s,%s,%s,%s,%s",
+        return String.format("%d,%s,%s,%s,%s,%s,%s,%s",
                 p.getId(),
                 clean(p.getName(), "Unknown"),
                 clean(p.getEmail(), "N/A"),
@@ -75,8 +55,7 @@ public class FilePatientRepository {
                 clean(p.getNic(), "N/A"),
                 clean(p.getAddress(), "N/A"),
                 clean(p.getBloodGroup(), "N/A"),
-                p.getDateOfBirth() != null ? p.getDateOfBirth().toString() : "N/A",
-                clean(p.getPassword(), "N/A"));
+                p.getDateOfBirth() != null ? p.getDateOfBirth().toString() : "N/A");
     }
 
     private String clean(String input, String def) {
@@ -98,7 +77,6 @@ public class FilePatientRepository {
             if (parts.length > 5 && !"N/A".equals(parts[5])) p.setAddress(parts[5]);
             if (parts.length > 6 && !"N/A".equals(parts[6])) p.setBloodGroup(parts[6]);
             if (parts.length > 7 && !"N/A".equals(parts[7])) p.setDateOfBirth(parts[7]);
-            if (parts.length > 8 && !"N/A".equals(parts[8])) p.setPassword(parts[8]);
             return p;
         } catch (Exception e) {
             return null;
