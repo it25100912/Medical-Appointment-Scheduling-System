@@ -31,7 +31,6 @@ public class Patient extends BaseEntity {
     private String address;
     private String bloodGroup;
     private String dateOfBirth;
-    private String password;
 
     @Column(columnDefinition = "TEXT")
     private String medicalHistory;
