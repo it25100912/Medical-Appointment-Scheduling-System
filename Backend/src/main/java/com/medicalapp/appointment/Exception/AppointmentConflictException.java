@@ -1,10 +1,12 @@
-package com.medicalapp.appointment.Exception;
+package com.medicalapp.appointment.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
 public class AppointmentConflictException extends RuntimeException {
+
+    // Constructor to pass custom error message when appointment conflict occurs
     public AppointmentConflictException(String message) {
         super(message);
     }
