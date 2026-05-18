@@ -118,6 +118,18 @@ public class AuthController {
         private String name;
     }
 
-    
+    @Data
+    public static class RegisterRequest {
+        private String email;
+        private String password;
+        private String name;
+        private String nic;
+        private String phone;
+        private String licenseNumber;
+        private String role;
+        private String dateOfBirth;
+        private String bloodGroup;
+        private String address;
+    }   
 
 }
