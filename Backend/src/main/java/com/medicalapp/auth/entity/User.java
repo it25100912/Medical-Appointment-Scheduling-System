@@ -27,7 +27,11 @@ public class User {
         ADMIN, DOCTOR, PATIENT
     }
 
-    
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
 
     @Override
     public String getUsername() {
