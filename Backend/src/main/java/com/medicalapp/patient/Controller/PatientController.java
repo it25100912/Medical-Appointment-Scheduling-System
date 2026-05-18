@@ -2,13 +2,13 @@ package com.medicalapp.patient.controller;
 
 import com.medicalapp.patient.dto.PatientDTO;
 import com.medicalapp.patient.service.IPatientService;
+import com.medicalapp.common.util.SecurityUtils;
+import com.medicalapp.common.exception.UnauthorizedException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.medicalapp.common.util.SecurityUtils;
-import com.medicalapp.common.exception.UnauthorizedException;
 
 import java.util.List;
 
@@ -26,35 +26,36 @@ public class PatientController {
     }
 
     @GetMapping
-    @GetMapping
     public List<PatientDTO> getAllPatients() {
-
-        // Patients can only view their own details
+        // Patients can only view their own details, not all patients
         if (SecurityUtils.isPatient()) {
-
             Long patientId = SecurityUtils.getCurrentUserId();
-
             return List.of(patientService.getPatientById(patientId));
         }
-
         // Admins and doctors can see all patients
         return patientService.getAllPatients();
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<PatientDTO> getMyProfile() {
+        // Get the logged-in patient's own profile
+        Long patientId = SecurityUtils.getCurrentUserId();
+        if (patientId == null) {
+            throw new UnauthorizedException("Unauthorized: User not authenticated");
+        }
+        PatientDTO patient = patientService.getPatientById(patientId);
+        return ResponseEntity.ok(patient);
+    }
+
     @GetMapping("/{id}")
     public PatientDTO getPatientById(@PathVariable Long id) {
-
         // Patients can only view their own details
         if (SecurityUtils.isPatient()) {
-
             Long currentPatientId = SecurityUtils.getCurrentUserId();
-
             if (!id.equals(currentPatientId)) {
-                throw new UnauthorizedException(
-                        "Unauthorized: You can only access your own information");
+                throw new UnauthorizedException("Unauthorized: You can only access your own information");
             }
         }
-
         return patientService.getPatientById(id);
     }
 
@@ -69,50 +70,24 @@ public class PatientController {
     }
 
     @PutMapping("/{id}")
-    public PatientDTO updatePatient(@PathVariable Long id,
-                                    @Valid @RequestBody PatientDTO dto) {
-
+    public PatientDTO updatePatient(@PathVariable Long id, @Valid @RequestBody PatientDTO dto) {
         // Patients can only update their own details
         if (SecurityUtils.isPatient()) {
-
             Long currentPatientId = SecurityUtils.getCurrentUserId();
-
             if (!id.equals(currentPatientId)) {
-                throw new UnauthorizedException(
-                        "Unauthorized: You can only update your own information");
+                throw new UnauthorizedException("Unauthorized: You can only update your own information");
             }
         }
-
         return patientService.updatePatient(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
-
         // Only admins can delete patients
         if (SecurityUtils.isPatient() || SecurityUtils.isDoctor()) {
-
-            throw new UnauthorizedException(
-                    "Unauthorized: Only admins can delete patients");
+            throw new UnauthorizedException("Unauthorized: Only admins can delete patients");
         }
-
         patientService.deletePatient(id);
-
         return ResponseEntity.noContent().build();
     }
-
-    @GetMapping("/me")
-    public ResponseEntity<PatientDTO> getMyProfile() {
-
-        Long patientId = SecurityUtils.getCurrentUserId();
-
-        if (patientId == null) {
-            throw new UnauthorizedException("Unauthorized: User not authenticated");
-        }
-
-        PatientDTO patient = patientService.getPatientById(patientId);
-
-        return ResponseEntity.ok(patient);
-    }
-
 }
