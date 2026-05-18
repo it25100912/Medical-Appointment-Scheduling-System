@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | MediSync Pro</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Split Layout */
+        .split-container {
+            display: flex;
+            width: 100vw;
+            min-height: 100vh;
+        }
+
+        .left-panel {
+            width: 50%;
+            padding: 4rem 6rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #FFFFFF;
+        }
+
+        .right-panel {
+            width: 50%;
+            background: #00539C;
+            background-image: 
+                radial-gradient(at 20% 20%, #00C4EE 0px, transparent 50%),
+                radial-gradient(at 80% 40%, #ff007f 0px, transparent 50%),
+                radial-gradient(at 40% 80%, #7b2cbf 0px, transparent 50%),
+                radial-gradient(at 90% 10%, #00539C 0px, transparent 50%),
+                radial-gradient(at 10% 90%, #00C4EE 0px, transparent 50%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .right-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            backdrop-filter: blur(60px) saturate(180%);
+            opacity: 0.92;
+        }
+
+        /* Flowing Grid Animation inside Right Panel */
+        .right-panel-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            padding: 3rem;
+            max-width: 480px;
+        }
+
+        .right-panel-content h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .right-panel-content p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        /* Left Panel Form Style */
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 83, 156, 0.15);
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            letter-spacing: -0.5px;
+        }
+
+        .form-container {
+            max-width: 420px;
+            width: 100%;
+            margin: auto 0;
+        }
+
+        .form-sub {
+            font-size: 0.95rem;
+            color: #64748B;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--primary-dark);
+            margin-bottom: 2rem;
+        }
+
+        /* Role Selector Tabs */
+        .role-tabs {
+            display: flex;
+            background: #F1F5F9;
+            border-radius: 30px;
+            padding: 4px;
+            margin-bottom: 2.25rem;
+        }
+
+        .role-tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.65rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #64748B;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .role-tab.active {
+            background: white;
+            color: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(0, 83, 156, 0.08);
+        }
+
+        /* Floating Border Overlap Form Fields */
+        .form-group {
+            position: relative;
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group label {
+            position: absolute;
+            left: 1rem;
+            top: -0.55rem;
+            background: white;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            z-index: 10;
+        }
+
+        .form-group input {
+            width: 100% !important;
+            padding: 1.1rem 3.5rem 1.1rem 1.25rem !important;
+            border: 1.5px solid #E2E8F0 !important;
+            border-radius: 12px !important;
+            font-size: 0.95rem !important;
+            font-weight: 500 !important;
+            color: var(--text-main) !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            transition: all 0.3s !important;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        .form-group input:focus {
+            outline: none !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 4px rgba(0, 196, 238, 0.15) !important;
+        }
+
+        .form-group i.field-icon {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        /* Action Buttons */
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 1.1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(0, 83, 156, 0.15);
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 83, 156, 0.25);
+        }
+
+        /* Social Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 2rem 0;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1.5px solid #F1F5F9;
+        }
+
+        .divider:not(:empty)::before {
+            margin-right: .75em;
+        }
+
+        .divider:not(:empty)::after {
+            margin-left: .75em;
+        }
+
+        /* Social Button Row */
+        .social-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 0.9rem;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            background: #F8FAFC;
+            border-color: #CBD5E1;
+            transform: translateY(-2px);
+        }
+
+        .social-btn i {
+            font-size: 1.15rem;
+        }
+
+        .social-btn.fb i { color: #1877F2; }
+        .social-btn.google i { color: #ea4335; }
+        .social-btn.apple i { color: #000000; }
+
+        /* Bottom Text */
+        .footer-link-text {
+            text-align: left;
+            color: #64748B;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .footer-link-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .footer-link-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .right-panel {
+                display: none;
+            }
+            .left-panel {
+                width: 100%;
+                padding: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="split-container">
+        
+        <!-- Left Panel containing Form -->
+        <div class="left-panel">
+            
+            <header class="logo-section">
+                <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                <span class="logo-text">MediSync</span>
+            </header>
+
+            <div class="form-container">
+                <!-- <p class="form-sub">Start your journey</p> -->
+                <h1 class="form-title">Sign In to MediSync</h1>
+
+                <!-- Role Selection Tabs -->
+                <div class="role-tabs" id="role-selector">
+                    <div class="role-tab active" data-role="ADMIN">Admin</div>
+                    <div class="role-tab" data-role="DOCTOR">Doctor</div>
+                    <div class="role-tab" data-role="PATIENT">Patient</div>
+                </div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" id="email" placeholder="someone@example.com" required>
+                        <i class="far fa-envelope field-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                        <i class="far fa-eye field-icon"></i>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        Sign In <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+                                
+            </div>
+
+            <footer class="footer-link-text">
+                Don't have an account? <a href="signup.html">Register</a>
+            </footer>
+
+        </div>
+
+        <!-- Right Panel containing Fluid Marble Backdrop -->
+        <div class="right-panel">
+            <div class="right-panel-content">
+                <h2>Clinical Intelligence Infrastructure</h2>
+                <p>Welcome back to the secure clinical portal. Log in to monitor operations, dispatch pharmacies, and orchestrate laboratory appointments.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        let selectedRole = 'ADMIN';
+        
+        document.getElementById('role-selector').addEventListener('click', (e) => {
+            if (e.target.classList.contains('role-tab')) {
+                document.querySelectorAll('.role-tab').forEach(opt => opt.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedRole = e.target.dataset.role;
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await apiFetch('/auth/login', 'POST', { email, password });
+                localStorage.setItem('token', response.token);
+                localStorage.setItem('user', JSON.stringify({
+                    email: response.email,
+                    role: response.role,
+                    name: response.name,
+                    id: response.id
+                }));
+                
+                showToast(`Welcome back, ${response.name}!`, 'success');
+                
+                setTimeout(() => {
+                    if (response.role === 'PATIENT') {
+                        window.location.href = 'patient-profile.html';
+                    } else if (response.role === 'DOCTOR') {
+                        window.location.href = 'doctor-profile.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 1000);
+            } catch (error) {
+                showToast(error.message, 'danger');
+            }
+        });
+    </script>
+</body>
+</html>
