@@ -15,6 +15,7 @@ public class LabRecord extends MedicalRecord {
     private String testResult;
     private String referenceRange;
 
+     //Overrides parent method to return format lab result summary
     @Override
     public String getRecordSummary() {
         return String.format("Lab Result | Test: %s | Result: %s (Normal range: %s)",
