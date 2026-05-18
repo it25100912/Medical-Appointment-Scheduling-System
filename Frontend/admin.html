@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Governance | MediSync Pro</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text"><h2>MediSync</h2><p>Pro System</p></div>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+            <a href="patients.html" class="nav-item"><i class="fas fa-users"></i> <span>Patients</span></a>
+            <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i> <span>Doctors</span></a>
+            
+            <a href="appointments.html" class="nav-item"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a>
+            <a href="records.html" class="nav-item"><i class="fas fa-file-medical"></i> <span>Medical Records</span></a>
+            <a href="billing.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> <span>Billing</span></a>
+            <a href="admin.html" class="nav-item active"><i class="fas fa-user-shield"></i> <span>Admin</span></a>
+            <a href="#" class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+        </nav>
+    </aside>
+
+    <div class="content-wrapper">
+        <header class="top-header">
+            <div class="search-container">
+                <input type="text" id="system-search" placeholder="Search clinical cloud (Admins, Roles, Access)...">
+            </div>
+            <div class="header-actions">
+                <div class="icon-btn notification-bell">
+                    <i class="far fa-bell"></i>
+                    <span class="notification-badge"></span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p class="user-name">Administrator</p>
+                        <p class="user-role">System Level 4</p>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563eb&color=white" class="user-avatar" alt="Admin">
+                </div>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <div class="admin-header">
+                <div>
+                    <h1>System Governance</h1>
+                    <p style="color: var(--text-muted); font-weight: 500;">Administrative credentialing and access control terminal.</p>
+                </div>
+                <button class="btn-add-premium" onclick="openAdminModal()">
+                    <i class="fas fa-user-plus"></i> New Admin
+                </button>
+            </div>
+
+            <div class="roster-card">
+                <table class="roster-table">
+                    <thead>
+                        <tr>
+                            <th class="col-patient">Username</th>
+                            <th class="col-contact">Email</th>
+                            <th class="col-blood">Role</th>
+                            <th class="col-status">Status</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-roster-body">
+                        <!-- Data injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <h2 style="margin-bottom: 2rem; color: var(--text-main); font-weight: 800; letter-spacing: -1px;">System Governance</h2>
+            <form id="admin-form">
+                <div class="flex-col gap-4">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="adm-user" placeholder="Enter unique username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="adm-email" placeholder="admin@medisync.pro" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Access Credential (Password)</label>
+                        <input type="password" id="adm-pass" placeholder="Enter secure password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Administrative Role</label>
+                        <select id="adm-role">
+                            <option value="ADMIN">System Administrator</option>
+                            <option value="SUPER_ADMIN">Regional Super Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 2.5rem; gap: 1.25rem;">
+                    <button type="button" class="btn-premium-outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-premium-primary" style="min-width: 200px;">Grant Access</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        window.allAdmins = [];
+
+        async function loadAdmins() {
+            try {
+                window.allAdmins = await apiFetch('/admins');
+                renderAdmins();
+            } catch (error) {
+                showToast('Failed to load governance data', 'error');
+            }
+        }
+
+        function renderAdmins() {
+            const tbody = document.getElementById('admin-roster-body');
+            const searchTerm = document.getElementById('system-search').value.toLowerCase().trim();
+            
+            const filtered = allAdmins.filter(a => {
+                const user = (a.username || '').toLowerCase();
+                const email = (a.email || '').toLowerCase();
+                const role = (a.role || '').toLowerCase();
+                
+                return user.includes(searchTerm) || 
+                       email.includes(searchTerm) || 
+                       role.includes(searchTerm);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    ${searchTerm ? 'No governance matches found for "' + searchTerm + '"' : 'No administrative personnel found.'}
+                </td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(a => `
+                <tr>
+                    <td><span class="user-name">${a.username}</span></td>
+                    <td><span class="user-name">${a.email}</span></td>
+                    <td><span class="info-tag">${a.role}</span></td>
+                    <td><span class="status-badge CONFIRMED">Active</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-action-light" onclick="editAdmin(${a.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn-action-light delete" onclick="deleteAdmin(${a.id})"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Live Search Handler
+        document.getElementById('system-search').addEventListener('input', renderAdmins);
+
+        let editingId = null;
+
+        function openAdminModal() {
+            editingId = null;
+            document.getElementById('admin-form').reset();
+            document.getElementById('adm-pass').required = true;
+            document.getElementById('adminModal').querySelector('h2').innerText = 'Grant System Access';
+            document.getElementById('adminModal').querySelector('button[type="submit"]').innerText = 'Grant Access';
+            document.getElementById('adminModal').classList.add('active');
+        }
+
+        async function editAdmin(id) {
+            try {
+                const a = await apiFetch(`/admins/${id}`);
+                editingId = id;
+                
+                document.getElementById('adm-user').value = a.username;
+                document.getElementById('adm-email').value = a.email;
+                document.getElementById('adm-pass').value = '';
+                document.getElementById('adm-pass').required = false;
+                document.getElementById('adm-role').value = a.role;
+
+                document.getElementById('adminModal').querySelector('h2').innerText = 'Update Administrative Credentials';
+                document.getElementById('adminModal').querySelector('button[type="submit"]').innerText = 'Save Changes';
+                document.getElementById('adminModal').classList.add('active');
+            } catch (error) {
+                showToast('Failed to load credential details', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        document.getElementById('admin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> processing...';
+            btn.disabled = true;
+
+            const data = {
+                username: document.getElementById('adm-user').value,
+                email: document.getElementById('adm-email').value,
+                role: document.getElementById('adm-role').value
+            };
+            
+            const pass = document.getElementById('adm-pass').value;
+            if (pass) data.password = pass;
+
+            try {
+                const method = editingId ? 'PUT' : 'POST';
+                const url = editingId ? `/admins/${editingId}` : '/admins';
+                await apiFetch(url, method, data);
+                
+                showToast(editingId ? 'Credentials updated' : 'Access granted', 'success');
+                closeModal();
+                loadAdmins();
+                e.target.reset();
+            } catch (error) {
+                showToast(error.message || 'Governance action failed', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        async function deleteAdmin(id) {
+            if (await showCustomConfirm('Are you sure you want to revoke all administrative access for this user?')) {
+                try {
+                    await apiFetch(`/admins/${id}`, 'DELETE');
+                    showToast('Access revoked', 'success');
+                    loadAdmins();
+                } catch (error) {
+                    showToast(error.message || 'Revocation failed', 'error');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAdmins);
+    </script>
+</body>
+</html>
