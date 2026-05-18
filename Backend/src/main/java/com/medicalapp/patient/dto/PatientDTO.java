@@ -1,5 +1,6 @@
 package com.medicalapp.patient.dto;
 
+import com.medicalapp.patient.entity.Patient;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -21,5 +22,13 @@ public class PatientDTO {
     @Email(message = "Invalid email format")
     private String email;
 
+    private String address;
+    private String bloodGroup;
+    private String dateOfBirth;
+    private String password;
+
+    private String medicalHistory;
+
+    private Patient.PatientType patientType;
 
 }
