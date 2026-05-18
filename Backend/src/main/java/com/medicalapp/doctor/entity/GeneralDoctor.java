@@ -11,6 +11,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class GeneralDoctor extends Doctor {
 
+        // Overrides the abstract method from Doctor class
+    // Returns the normal consultation fee for a general doctor
     @Override
     public double calculateConsultationFee() {
         return this.getConsultationFee();
