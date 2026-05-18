@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.medicalapp.common.util.SecurityUtils;
+import com.medicalapp.common.exception.UnauthorizedException;
 
 import java.util.List;
 
@@ -54,4 +56,19 @@ public class PatientController {
         patientService.deletePatient(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<PatientDTO> getMyProfile() {
+
+        Long patientId = SecurityUtils.getCurrentUserId();
+
+        if (patientId == null) {
+            throw new UnauthorizedException("Unauthorized: User not authenticated");
+        }
+
+        PatientDTO patient = patientService.getPatientById(patientId);
+
+        return ResponseEntity.ok(patient);
+    }
+    
 }
