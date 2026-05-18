@@ -26,12 +26,35 @@ public class PatientController {
     }
 
     @GetMapping
+    @GetMapping
     public List<PatientDTO> getAllPatients() {
+
+        // Patients can only view their own details
+        if (SecurityUtils.isPatient()) {
+
+            Long patientId = SecurityUtils.getCurrentUserId();
+
+            return List.of(patientService.getPatientById(patientId));
+        }
+
+        // Admins and doctors can see all patients
         return patientService.getAllPatients();
     }
 
     @GetMapping("/{id}")
     public PatientDTO getPatientById(@PathVariable Long id) {
+
+        // Patients can only view their own details
+        if (SecurityUtils.isPatient()) {
+
+            Long currentPatientId = SecurityUtils.getCurrentUserId();
+
+            if (!id.equals(currentPatientId)) {
+                throw new UnauthorizedException(
+                        "Unauthorized: You can only access your own information");
+            }
+        }
+
         return patientService.getPatientById(id);
     }
 
@@ -48,12 +71,33 @@ public class PatientController {
     @PutMapping("/{id}")
     public PatientDTO updatePatient(@PathVariable Long id,
                                     @Valid @RequestBody PatientDTO dto) {
+
+        // Patients can only update their own details
+        if (SecurityUtils.isPatient()) {
+
+            Long currentPatientId = SecurityUtils.getCurrentUserId();
+
+            if (!id.equals(currentPatientId)) {
+                throw new UnauthorizedException(
+                        "Unauthorized: You can only update your own information");
+            }
+        }
+
         return patientService.updatePatient(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
+
+        // Only admins can delete patients
+        if (SecurityUtils.isPatient() || SecurityUtils.isDoctor()) {
+
+            throw new UnauthorizedException(
+                    "Unauthorized: Only admins can delete patients");
+        }
+
         patientService.deletePatient(id);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -70,5 +114,5 @@ public class PatientController {
 
         return ResponseEntity.ok(patient);
     }
-    
+
 }
