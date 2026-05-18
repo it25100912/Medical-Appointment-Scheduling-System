@@ -40,12 +40,11 @@ public abstract class Doctor extends BaseEntity {
     private LocalTime availableFrom;
     private LocalTime availableTo;
 
+    private String password;
+
     public enum DoctorType {
         GENERAL, SPECIALIST
     }
 
     public abstract double calculateConsultationFee();
-   
-    
-
 }
