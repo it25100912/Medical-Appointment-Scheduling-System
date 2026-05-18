@@ -22,4 +22,3 @@ public class Appointment implements Serializable {
     private String reason;
     private String status; // SCHEDULED, COMPLETED, CANCELLED
 }
-
