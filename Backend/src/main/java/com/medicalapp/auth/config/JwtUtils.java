@@ -20,7 +20,6 @@ public class JwtUtils {
     private final int jwtExpirationMs = 86400000;
 
     private Key getSigningKey() {
-
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
