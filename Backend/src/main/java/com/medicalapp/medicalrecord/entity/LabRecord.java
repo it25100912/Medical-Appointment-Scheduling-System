@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
-@DiscriminatorValue("LAB_RESULT")
+@DiscriminatorValue("LAB_RESULT") //Used in inheritance to identify this subclass type
 @EqualsAndHashCode(callSuper = true)
 public class LabRecord extends MedicalRecord {
 
