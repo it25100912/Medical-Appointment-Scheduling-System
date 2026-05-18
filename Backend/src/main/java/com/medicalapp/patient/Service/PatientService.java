@@ -232,5 +232,111 @@ public class PatientService implements IPatientService {
                                         "Patient not found"
                                 )));
     }
-    
+
+    @Override
+    public PatientDTO updatePatient(Long id, PatientDTO dto) {
+
+        Patient existing =
+                patientRepository.findById(id).orElse(null);
+
+        if (existing == null) {
+
+            // Create from users.txt if missing
+            User user =
+                    userRepository.findById(id).orElse(null);
+
+            if (user == null ||
+                    user.getRole() != User.Role.PATIENT) {
+
+                throw new ResourceNotFoundException(
+                        "Patient not found"
+                );
+            }
+
+            Patient p = new OutPatient();
+
+            p.setId(user.getId());
+            p.setName(user.getName());
+            p.setEmail(user.getEmail());
+            p.setPhone(user.getPhone());
+            p.setNic(user.getNic());
+            p.setPassword(user.getPassword());
+
+            if (dto.getName() != null)
+                p.setName(dto.getName());
+
+            if (dto.getEmail() != null)
+                p.setEmail(dto.getEmail());
+
+            if (dto.getPhone() != null)
+                p.setPhone(dto.getPhone());
+
+            if (dto.getNic() != null)
+                p.setNic(dto.getNic());
+
+            if (dto.getAddress() != null)
+                p.setAddress(dto.getAddress());
+
+            if (dto.getBloodGroup() != null)
+                p.setBloodGroup(dto.getBloodGroup());
+
+            if (dto.getDateOfBirth() != null)
+                p.setDateOfBirth(dto.getDateOfBirth());
+
+            if (dto.getMedicalHistory() != null)
+                p.setMedicalHistory(dto.getMedicalHistory());
+
+            // Password update
+            if (dto.getPassword() != null &&
+                    !dto.getPassword().trim().isEmpty()) {
+
+                p.setPassword(
+                        passwordEncoder.encode(dto.getPassword())
+                );
+
+                user.setPassword(
+                        passwordEncoder.encode(dto.getPassword())
+                );
+
+                userRepository.save(user);
+            }
+
+            Patient saved = patientRepository.save(p);
+
+            return mapEntityToDto(saved);
+        }
+
+        existing.setName(dto.getName());
+        existing.setEmail(dto.getEmail());
+        existing.setPhone(dto.getPhone());
+        existing.setNic(dto.getNic());
+        existing.setAddress(dto.getAddress());
+        existing.setBloodGroup(dto.getBloodGroup());
+        existing.setDateOfBirth(dto.getDateOfBirth());
+        existing.setMedicalHistory(dto.getMedicalHistory());
+
+        if (dto.getPassword() != null &&
+                !dto.getPassword().trim().isEmpty()) {
+
+            existing.setPassword(
+                    passwordEncoder.encode(dto.getPassword())
+            );
+
+            userRepository.findByEmail(existing.getEmail())
+                    .ifPresent(user -> {
+
+                        user.setPassword(
+                                passwordEncoder.encode(
+                                        dto.getPassword()
+                                )
+                        );
+
+                        userRepository.save(user);
+                    });
+        }
+
+        return mapEntityToDto(
+                patientRepository.save(existing)
+        );
+    }
 }
