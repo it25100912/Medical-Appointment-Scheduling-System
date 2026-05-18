@@ -2,6 +2,8 @@ package com.medicalapp.doctor.controller;
 
 import com.medicalapp.doctor.dto.DoctorDTO;
 import com.medicalapp.doctor.service.IDoctorService;
+import com.medicalapp.common.util.SecurityUtils;
+import com.medicalapp.common.exception.UnauthorizedException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,16 @@ public class DoctorController {
     @GetMapping
     public List<DoctorDTO> getAllDoctors() {
         return doctorService.getAllDoctors();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<DoctorDTO> getMyProfile() {
+        Long doctorId = SecurityUtils.getCurrentUserId();
+        if (doctorId == null) {
+            throw new UnauthorizedException("Unauthorized: User not authenticated");
+        }
+        DoctorDTO doctor = doctorService.getDoctorById(doctorId);
+        return ResponseEntity.ok(doctor);
     }
 
     @GetMapping("/{id}")
