@@ -1,5 +1,6 @@
 package com.medicalapp.patient.service;
 
+import com.medicalapp.appointment.repository.FileAppointmentRepository;
 import com.medicalapp.patient.dto.PatientDTO;
 import com.medicalapp.patient.entity.InPatient;
 import com.medicalapp.patient.entity.OutPatient;
@@ -21,9 +22,10 @@ import java.util.stream.Collectors;
 @Transactional
 public class PatientService implements IPatientService {
 
+
     private final FilePatientRepository patientRepository;
     private final FileUserRepository userRepository;
-
+    private final FileAppointmentRepository appointmentRepository;
     private final BCryptPasswordEncoder passwordEncoder =
             new BCryptPasswordEncoder();
 
@@ -338,5 +340,21 @@ public class PatientService implements IPatientService {
         return mapEntityToDto(
                 patientRepository.save(existing)
         );
+    }
+
+    @Override
+    public void deletePatient(Long id) {
+
+        if (!appointmentRepository
+                .findByPatientId(id)
+                .isEmpty()) {
+
+            throw new IllegalStateException(
+                    "Cannot delete patient with active appointments associated."
+            );
+        }
+
+        patientRepository.deleteById(id);
+        userRepository.deleteById(id);
     }
 }
