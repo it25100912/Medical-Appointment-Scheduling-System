@@ -11,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.medicalapp.common.exception.ResourceNotFoundException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -106,4 +110,127 @@ public class PatientService implements IPatientService {
 
         return dto;
     }
+
+    //Patient Retirival and search
+    @Override
+    public List<PatientDTO> getAllPatients() {
+
+        List<PatientDTO> list = patientRepository.findAll().stream()
+                .map(this::mapEntityToDto)
+                .collect(Collectors.toList());
+
+        // Include patient users from users.txt
+        userRepository.findAll().stream()
+                .filter(u -> u.getRole() == User.Role.PATIENT)
+                .forEach(u -> {
+
+                    boolean exists =
+                            patientRepository.findById(u.getId()).isPresent()
+                                    || patientRepository.findByEmail(u.getEmail()).isPresent();
+
+                    if (!exists) {
+
+                        PatientDTO dto = new PatientDTO();
+
+                        dto.setId(u.getId());
+                        dto.setName(u.getName());
+                        dto.setEmail(u.getEmail());
+                        dto.setPhone(u.getPhone());
+                        dto.setNic(u.getNic());
+
+                        list.add(dto);
+                    }
+                });
+
+        return list;
+    }
+
+    @Override
+    public PatientDTO getPatientById(Long id) {
+
+        return patientRepository.findById(id)
+                .map(this::mapEntityToDto)
+                .orElseGet(() -> {
+
+                    return userRepository.findById(id)
+                            .filter(u -> u.getRole() == User.Role.PATIENT)
+                            .map(u -> {
+
+                                PatientDTO dto = new PatientDTO();
+
+                                dto.setId(u.getId());
+                                dto.setName(u.getName());
+                                dto.setEmail(u.getEmail());
+                                dto.setPhone(u.getPhone());
+                                dto.setNic(u.getNic());
+
+                                return dto;
+
+                            }).orElseThrow(() ->
+                                    new ResourceNotFoundException(
+                                            "Patient not found"
+                                    ));
+                });
+    }
+
+    @Override
+    public PatientDTO getPatientByNic(String nic) {
+
+        return patientRepository.findByNic(nic)
+                .map(this::mapEntityToDto)
+                .orElseGet(() -> userRepository.findAll().stream()
+                        .filter(u ->
+                                u.getNic() != null
+                                        && u.getNic().equals(nic)
+                                        && u.getRole() == User.Role.PATIENT
+                        )
+                        .findFirst()
+                        .map(u -> {
+
+                            PatientDTO dto = new PatientDTO();
+
+                            dto.setId(u.getId());
+                            dto.setName(u.getName());
+                            dto.setEmail(u.getEmail());
+                            dto.setPhone(u.getPhone());
+                            dto.setNic(u.getNic());
+
+                            return dto;
+
+                        }).orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Patient not found"
+                                )));
+    }
+
+    @Override
+    public PatientDTO getPatientByPhone(String phone) {
+
+        return patientRepository.findByPhone(phone)
+                .map(this::mapEntityToDto)
+                .orElseGet(() -> userRepository.findAll().stream()
+                        .filter(u ->
+                                u.getPhone() != null
+                                        && u.getPhone().equals(phone)
+                                        && u.getRole() == User.Role.PATIENT
+                        )
+                        .findFirst()
+                        .map(u -> {
+
+                            PatientDTO dto = new PatientDTO();
+
+                            dto.setId(u.getId());
+                            dto.setName(u.getName());
+                            dto.setEmail(u.getEmail());
+                            dto.setPhone(u.getPhone());
+                            dto.setNic(u.getNic());
+
+                            return dto;
+
+                        }).orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Patient not found"
+                                )));
+    }
+    
 }
