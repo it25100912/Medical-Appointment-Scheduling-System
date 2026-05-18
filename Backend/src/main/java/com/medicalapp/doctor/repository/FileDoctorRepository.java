@@ -31,9 +31,17 @@ public class FileDoctorRepository {
             doctor.setId(System.currentTimeMillis());
             doctors.add(doctor);
         } else {
-            doctors = doctors.stream()
-                    .map(d -> d.getId().equals(doctor.getId()) ? doctor : d)
-                    .collect(Collectors.toList());
+            boolean updated = false;
+            for (int i = 0; i < doctors.size(); i++) {
+                if (doctors.get(i).getId().equals(doctor.getId())) {
+                    doctors.set(i, doctor);
+                    updated = true;
+                    break;
+                }
+            }
+            if (!updated) {
+                doctors.add(doctor);
+            }
         }
         storage.writeToFile(doctors, this::mapToString);
         return doctor;
@@ -46,14 +54,38 @@ public class FileDoctorRepository {
         storage.writeToFile(doctors, this::mapToString);
     }
 
+    public Optional<Doctor> findByEmail(String email) {
+        return findAll().stream()
+                .filter(d -> d.getEmail() != null && d.getEmail().equals(email))
+                .findFirst();
+    }
+
+    public List<Doctor> findBySpecialization(String specialization) {
+        return findAll().stream()
+                .filter(d -> d.getSpecialization() != null && d.getSpecialization().equals(specialization))
+                .collect(Collectors.toList());
+    }
+
+    public List<Doctor> findByAvailableDaysContaining(String day) {
+        return findAll().stream()
+                .filter(d -> d.getAvailableDays() != null && d.getAvailableDays().contains(day))
+                .collect(Collectors.toList());
+    }
+
     private String mapToString(Doctor d) {
-        return String.format("%d,%s,%s,%s,%s,%s",
+        return String.format("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                 d.getId(),
                 clean(d.getName(), "Unknown"),
+                clean(d.getEmail(), "N/A"),
+                clean(d.getPhone(), "N/A"),
                 clean(d.getSpecialization(), "General"),
                 clean(d.getLicenseNumber(), "N/A"),
                 d.getExperience() != null ? d.getExperience().toString() : "0",
-                d.getConsultationFee() != null ? d.getConsultationFee().toString() : "0.0");
+                d.getConsultationFee() != null ? d.getConsultationFee().toString() : "0.0",
+                clean(d.getAvailableDays(), "N/A"),
+                d.getAvailableFrom() != null ? d.getAvailableFrom().toString() : "N/A",
+                d.getAvailableTo() != null ? d.getAvailableTo().toString() : "N/A",
+                clean(d.getPassword(), "N/A"));
     }
 
     private String clean(String input, String def) {
@@ -69,22 +101,40 @@ public class FileDoctorRepository {
         try {
             d.setId(Long.parseLong(parts[0]));
             d.setName(parts[1]);
-            if (parts.length > 2 && !"N/A".equals(parts[2])) d.setSpecialization(parts[2]);
-            if (parts.length > 3 && !"N/A".equals(parts[3])) d.setLicenseNumber(parts[3]);
-            if (parts.length > 4) {
+            if (parts.length > 2 && !"N/A".equals(parts[2])) d.setEmail(parts[2]);
+            if (parts.length > 3 && !"N/A".equals(parts[3])) d.setPhone(parts[3]);
+            if (parts.length > 4 && !"N/A".equals(parts[4])) d.setSpecialization(parts[4]);
+            if (parts.length > 5 && !"N/A".equals(parts[5])) d.setLicenseNumber(parts[5]);
+            if (parts.length > 6) {
                 try {
-                    d.setExperience(Integer.parseInt(parts[4]));
+                    d.setExperience(Integer.parseInt(parts[6]));
                 } catch (NumberFormatException e) {
                     d.setExperience(0);
                 }
             }
-            if (parts.length > 5) {
+            if (parts.length > 7) {
                 try {
-                    d.setConsultationFee(Double.parseDouble(parts[5]));
+                    d.setConsultationFee(Double.parseDouble(parts[7]));
                 } catch (NumberFormatException e) {
                     d.setConsultationFee(0.0);
                 }
             }
+            if (parts.length > 8 && !"N/A".equals(parts[8])) d.setAvailableDays(parts[8]);
+            if (parts.length > 9 && !"N/A".equals(parts[9])) {
+                try {
+                    d.setAvailableFrom(java.time.LocalTime.parse(parts[9]));
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+            if (parts.length > 10 && !"N/A".equals(parts[10])) {
+                try {
+                    d.setAvailableTo(java.time.LocalTime.parse(parts[10]));
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+            if (parts.length > 11 && !"N/A".equals(parts[11])) d.setPassword(parts[11]);
             return d;
         } catch (Exception e) {
             return null;
