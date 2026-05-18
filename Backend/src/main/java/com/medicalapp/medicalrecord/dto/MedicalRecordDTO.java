@@ -20,6 +20,7 @@ public class MedicalRecordDTO {
     private LocalDate recordDate;
 
     private String diagnosis;
+    
 
     private MedicalRecord.RecordType recordType;
 
