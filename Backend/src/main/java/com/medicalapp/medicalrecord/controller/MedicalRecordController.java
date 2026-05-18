@@ -2,6 +2,8 @@ package com.medicalapp.medicalrecord.controller;
 
 import com.medicalapp.medicalrecord.dto.MedicalRecordDTO;
 import com.medicalapp.medicalrecord.service.IMedicalRecordService;
+import com.medicalapp.common.util.SecurityUtils;
+import com.medicalapp.common.exception.UnauthorizedException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,14 +22,23 @@ public class MedicalRecordController {
 
     @PostMapping
     public ResponseEntity<MedicalRecordDTO> addRecord(@Valid @RequestBody MedicalRecordDTO dto) {
+        if (SecurityUtils.isPatient()) {
+            throw new UnauthorizedException("Unauthorized: Patients cannot create medical records");
+        }
         return new ResponseEntity<>(medicalRecordService.addRecord(dto), HttpStatus.CREATED);
     }
 
     @GetMapping
     public List<MedicalRecordDTO> getAllRecords() {
+        // Patients can only view their own medical records
+        if (SecurityUtils.isPatient()) {
+            Long patientId = SecurityUtils.getCurrentUserId();
+            return medicalRecordService.getRecordsByPatient(patientId);
+        }
+        // Doctors and admins can see all records
         return medicalRecordService.getAllRecords();
     }
-
+    
     @GetMapping("/{id}")
     public MedicalRecordDTO getRecordById(@PathVariable Long id) {
         return medicalRecordService.getRecordById(id);
