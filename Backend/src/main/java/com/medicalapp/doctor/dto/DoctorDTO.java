@@ -31,9 +31,11 @@ public class DoctorDTO {
     private LocalTime availableFrom;
 
     private LocalTime availableTo;
-
+    
     private String licenseNumber;
     private Integer experience;
 
     private String specialistArea;
+
+    private String password;
 }
