@@ -94,5 +94,30 @@ public class AuthController {
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
+    @Data
+    @AllArgsConstructor
+    public static class MessageResponse {
+        private String message;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LoginRequest {
+        private String email;
+        private String password;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class JwtResponse {
+        private String token;
+        private Long id;
+        private String email;
+        private String role;
+        private String name;
+    }
+
+    
 
 }
