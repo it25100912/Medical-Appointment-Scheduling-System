@@ -5,7 +5,6 @@ import com.medicalapp.medicalrecord.entity.MedicalRecord;
 import com.medicalapp.medicalrecord.entity.PrescriptionRecord;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +25,7 @@ public class FileMedicalRecordRepository {
         return findById(id).isPresent();
     }
 
+     // Save new record or update existing record
     public MedicalRecord save(MedicalRecord record) {
         List<MedicalRecord> records = findAll();
         if (record.getId() == null) {
@@ -40,6 +40,7 @@ public class FileMedicalRecordRepository {
         return record;
     }
 
+    // Delete medical record by ID
     public void deleteById(Long id) {
         List<MedicalRecord> records = findAll().stream()
                 .filter(r -> !r.getId().equals(id))
@@ -47,37 +48,43 @@ public class FileMedicalRecordRepository {
         storage.writeToFile(records, this::mapToString);
     }
 
+    // Find all medical records by patient ID
     public List<MedicalRecord> findByPatientId(Long patientId) {
         return findAll().stream()
                 .filter(r -> r.getPatientId() != null && r.getPatientId().equals(patientId))
                 .collect(Collectors.toList());
     }
 
+    // Find all medical records by doctor ID
     public List<MedicalRecord> findByDoctorId(Long doctorId) {
         return findAll().stream()
                 .filter(r -> r.getDoctorId() != null && r.getDoctorId().equals(doctorId))
                 .collect(Collectors.toList());
     }
 
+    //Convert MedicalRecord object into String format for file storage
     private String mapToString(MedicalRecord r) {
-        return String.format("%d,%s,%s,%s,%s,%s,%s",
+        return String.format("%d,%s,%s,%s,%s,%s",
                 r.getId(),
                 r.getPatientId() != null ? r.getPatientId().toString() : "0",
                 r.getDoctorId() != null ? r.getDoctorId().toString() : "0",
                 clean(r.getDiagnosis(), "N/A"),
                 clean(r.getPrescription(), "N/A"),
-                clean(r.getNotes(), "N/A"),
-                r.getRecordDate() != null ? r.getRecordDate().toString() : LocalDate.now().toString());
+                clean(r.getNotes(), "N/A"));
     }
 
+    // Clean input text before saving into file
     private String clean(String input, String def) {
         if (input == null || input.trim().isEmpty()) return def;
         return input.replace(",", " ").replace("\n", " ").replace("\r", " ").trim();
     }
 
+    // Convert a line from file into a MedicalRecord object
     private MedicalRecord mapToRecord(String line) {
         String[] parts = line.split(",");
         MedicalRecord r = new PrescriptionRecord();
+
+        //Invalid line check
         if (parts.length < 2) return null;
 
         try {
@@ -87,13 +94,10 @@ public class FileMedicalRecordRepository {
             if (parts.length > 3) r.setDiagnosis(parts[3]);
             if (parts.length > 4) r.setPrescription(parts[4]);
             if (parts.length > 5) r.setNotes(parts[5]);
-            if (parts.length > 6 && !"N/A".equals(parts[6])) {
-                r.setRecordDate(LocalDate.parse(parts[6]));
-            } else {
-                r.setRecordDate(LocalDate.now());
-            }
             return r;
         } catch (Exception e) {
+
+            //Return null if conversion fails
             return null;
         }
     }
