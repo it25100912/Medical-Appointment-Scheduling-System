@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSync Service Portal | Corporate Health Dashboard</title>
+    
+    <!-- Google Fonts: Inter & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #00539C;          /* Deep Corporate Blue */
+            --primary-light: #006ecf;
+            --primary-dark: #003a6e;
+            --accent: #00C4EE;           /* Bright Cyan Accent */
+            --accent-hover: #00E5FF;
+            --bg-neutral: #F4F7FC;       /* Soft light gray/blue off-white */
+            --card-bg: #FFFFFF;          /* Pure White */
+            --text-main: #1E293B;        /* Dark Slate Gray */
+            --text-muted: #64748B;
+            --success: #10B981;          /* Bright green for badges */
+            --border-color: #E2E8F0;
+            --shadow-sm: 0 2px 8px rgba(0, 83, 156, 0.04);
+            --shadow-md: 0 10px 25px rgba(0, 83, 156, 0.06);
+            --shadow-lg: 0 20px 40px rgba(0, 83, 156, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-neutral);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+
+        /* --- HEADER NAVIGATION --- */
+        .header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-mark {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 12px rgba(0, 83, 156, 0.2);
+        }
+
+        .logo-text h2 {
+            font-size: 1.4rem;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text p {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            margin-top: -3px;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2.2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+
+        .btn-signin {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 2px solid var(--primary);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 4px 15px rgba(0, 83, 156, 0.15);
+        }
+
+        .btn-signin:hover {
+            background-color: transparent;
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 83, 156, 0.2);
+        }
+
+        /* --- HERO BANNER --- */
+        .hero-section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(0, 83, 156, 0.95), rgba(0, 58, 110, 0.98)), url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=1200') no-repeat center/cover;
+            border-radius: 24px;
+            padding: 4.5rem 4rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top right, rgba(0, 196, 238, 0.15), transparent 60%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 650px;
+        }
+
+        .hero-badge {
+            background-color: rgba(0, 196, 238, 0.15);
+            border: 1px solid rgba(0, 196, 238, 0.3);
+            color: var(--accent);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            margin-bottom: 1.2rem;
+            letter-spacing: -1px;
+        }
+
+        .hero-title span {
+            color: var(--accent);
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .btn-cta {
+            background-color: var(--accent);
+            color: var(--primary-dark);
+            padding: 0.9rem 2.2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 8px 25px rgba(0, 196, 238, 0.25);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-cta:hover {
+            background-color: white;
+            color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- MAIN ACTION & SEARCH BAR --- */
+        .search-section {
+            max-width: 1200px;
+            margin: -4rem auto 2.5rem;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-block {
+            background-color: var(--primary);
+            border-radius: 20px;
+            padding: 2.2rem 2.5rem;
+            box-shadow: 0 20px 50px rgba(0, 58, 110, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            align-items: flex-end;
+        }
+
+        .search-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .search-field label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-left: 0.25rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1.1rem;
+            color: var(--primary);
+            font-size: 1.05rem;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 52px;
+            background-color: white;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 0 1rem 0 2.8rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0, 196, 238, 0.15);
+        }
+
+        .search-input-select {
+            padding-left: 2.8rem;
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='%2300539C' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+        }
+
+        .btn-search {
+            height: 52px;
+            background-color: #E2E8F0;
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.25s;
+        }
+
+        .btn-search:hover {
+            background-color: white;
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .advanced-search-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 1.2rem;
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+
+        .advanced-search-link:hover {
+            color: white;
+        }
+
+        /* --- FEATURED QUICK LINKS --- */
+        .featured-section {
+            max-width: 1200px;
+            margin: 0 auto 2.5rem;
+            padding: 0 1.5rem;
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .featured-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .featured-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-md);
+        }
+
+        .featured-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            background-color: rgba(0, 83, 156, 0.05);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            transition: all 0.3s;
+        }
+
+        .featured-card:hover .featured-icon {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .featured-info h4 {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 0.2rem;
+        }
+
+        .featured-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* --- QUICK ACCESS SERVICE GRID --- */
+        .services-section {
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+            padding: 0 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.8rem;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            color: var(--primary-dark);
+            position: relative;
+            padding-left: 0.85rem;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            bottom: 4px;
+            width: 4px;
+            background-color: var(--accent);
+            border-radius: 20px;
+        }
+
+        .section-title p {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .service-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.2rem 1.5rem 1.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            position: relative;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            min-height: 220px;
+            text-decoration: none;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .service-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: transparent;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .service-card:hover::after {
+            background-color: var(--accent);
+        }
+
+        .info-icon {
+            position: absolute;
+            top: 1.1rem;
+            right: 1.1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: color 0.25s;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50px;
+        }
+
+        .info-icon:hover {
+            color: var(--primary);
+            background-color: rgba(0, 83, 156, 0.05);
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: var(--success);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 0.25rem 0.6rem;
+            border-radius: 50px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+        }
+
+        .service-icon-wrapper {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.1rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        /* Unique service colored themes */
+        .sc-driving { background-color: rgba(16, 185, 129, 0.08); color: #10B981; }
+        .sc-pharmacy { background-color: rgba(0, 196, 238, 0.08); color: #00C4EE; }
+        .sc-lab { background-color: rgba(139, 92, 246, 0.08); color: #8B5CF6; }
+        .sc-home { background-color: rgba(245, 158, 11, 0.08); color: #F59E0B; }
+        .sc-physio { background-color: rgba(239, 68, 68, 0.08); color: #EF4444; }
+        .sc-mental { background-color: rgba(6, 182, 212, 0.08); color: #06B6D4; }
+        .sc-wellness { background-color: rgba(236, 72, 153, 0.08); color: #EC4899; }
+        .sc-vaccine { background-color: rgba(59, 130, 246, 0.08); color: #3B82F6; }
+
+        .service-card:hover .service-icon-wrapper {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .service-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #000000;
+            line-height: 1.3;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            background-color: var(--primary-dark);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 4rem 1.5rem 2rem;
+            border-top: 5px solid var(--accent);
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-brand p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50px;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.25s;
+        }
+
+        .social-icon:hover {
+            background-color: var(--accent);
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .footer-links h4 {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-links h4::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+
+        .footer-links ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.25s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        /* --- MODERN INTERACTIVE MODAL & TOAST --- */
+        .portal-toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--card-bg);
+            border-left: 5px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.25rem 1.8rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            transform: translateY(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2000;
+        }
+
+        .portal-toast.active {
+            transform: translateY(0);
+        }
+
+        .toast-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50px;
+            background-color: rgba(0, 196, 238, 0.1);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .toast-content h5 {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-bottom: 0.1rem;
+        }
+
+        .toast-content p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .services-grid { grid-template-columns: repeat(3, 1fr); }
+            .featured-grid { grid-template-columns: repeat(2, 1fr); }
+            .search-grid { grid-template-columns: repeat(2, 1fr); }
+            .search-section { margin-top: -2rem; }
+        }
+
+        @media (max-width: 768px) {
+            .services-grid { grid-template-columns: repeat(2, 1fr); }
+            .featured-grid { grid-template-columns: 1fr; }
+            .search-grid { grid-template-columns: 1fr; }
+            .hero-banner { padding: 3rem 2rem; }
+            .hero-title { font-size: 2rem; }
+            .footer-container { grid-template-columns: 1fr; gap: 2rem; }
+            .nav-menu { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="#" class="logo-block">
+                <div class="logo-mark">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>MediSync</h2>
+                    <p>Corporate Care</p>
+                </div>
+            </a>
+            
+            <ul class="nav-menu">
+                <li><a href="#" class="nav-link active">Home Portal</a></li>
+                <li><a href="appointments.html" class="nav-link">My Appointments</a></li>
+            </ul>
+
+            <a href="login.html" class="btn-signin">
+                <i class="fas fa-user-circle"></i> Sign In
+            </a>
+        </div>
+    </header>
+
+    <!-- HERO BANNER SECTION -->
+    <section class="hero-section">
+        <div class="hero-banner">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-shield-halved"></i> Verified Corporate Network
+                </div>
+                <h1 class="hero-title">Your Trusted <span>Digital Health</span> Companion</h1>
+                <p class="hero-description">Access top-tier medical services, book specialized consultations, and manage your health seamlessly from one unified clinical dashboard.</p>
+                <button class="btn-cta" onclick="scrollToServices()">
+                    Explore Clinical Services <i class="fas fa-arrow-down"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED QUICK LINKS -->
+    <section class="featured-section">
+        <div class="featured-grid">
+            <a href="appointments.html" class="featured-card">
+                <div class="featured-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="featured-info">
+                    <h4>Instant Consultation</h4>
+                    <p>Talk to a secure physician in under 2 minutes.</p>
+                </div>
+            </a>
+            
+            <a href="records.html" class="featured-card">
+                <div class="featured-icon">
+                    <i class="fas fa-file-prescription"></i>
+                </div>
+                <div class="featured-info">
+                    <h4>Upload Prescription</h4>
+                    <p>Get medicine dispatch matching your prescription fast.</p>
+                </div>
+            </a>
+
+            <a href="billing.html" class="featured-card">
+                <div class="featured-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="featured-info">
+                    <h4>Insurance Claim</h4>
+                    <p>Check corporate coverage status and pre-auth claims.</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- QUICK ACCESS SERVICE GRID -->
+    <section class="services-section" id="clinical-services">
+        <div class="section-header">
+            <div class="section-title">
+                <h2>Clinical Service Directory</h2>
+                <p>Select a quick access service node below to initiate high-fidelity scheduling.</p>
+            </div>
+        </div>
+
+        <div class="services-grid">
+            <!-- Card 1 -->
+            <div class="service-card" onclick="openServiceDetail('Driving License Medical', 'Complete medical checkups and vision tests required for corporate driving license renewal.')">
+                <span class="new-badge">New</span>
+                <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); openServiceDetail('Driving License Medical', 'Complete medical checkups and vision tests required for corporate driving license renewal.')"></i>
+                <div class="service-icon-wrapper sc-driving">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div class="service-label">Driving License Medical</div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="service-card" onclick="openServiceDetail('ePharmacy Dispatch', 'Corporate pharmaceutical home deliveries with secure tracking and electronic logs.')">
+                <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); openServiceDetail('ePharmacy Dispatch', 'Corporate pharmaceutical home deliveries with secure tracking and electronic logs.')"></i>
+                <div class="service-icon-wrapper sc-pharmacy">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div class="service-label">ePharmacy Dispatch</div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="service-card" onclick="openServiceDetail('Lab Appointments', 'Instant appointment booking for clinical diagnostic pathology, blood draws, and PCR panels.')">
+                <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); openServiceDetail('Lab Appointments', 'Instant appointment booking for clinical diagnostic pathology, blood draws, and PCR panels.')"></i>
+                <div class="service-icon-wrapper sc-lab">
+                    <i class="fas fa-flask-vial"></i>
+                </div>
+                <div class="service-label">Lab Appointments</div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="service-card" onclick="openServiceDetail('Home Care Services', 'High-quality on-demand nursing, geriatric checks, and post-surgery care delivered to your home.')">
+                <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); openServiceDetail('Home Care Services', 'High-quality on-demand nursing, geriatric checks, and post-surgery care delivered to your home.')"></i>
+                <div class="service-icon-wrapper sc-home">
+                    <i class="fas fa-home-user"></i>
+                </div>
+                <div class="service-label">Home Care Services</div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="service-card" onclick="openServiceDetail('Physiotherapy Care', 'Specialized physical rehabilitation sessions for orthopedic recovery and mobility enhancement.')">
+                <span class="new-badge">New</span>
+                <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); openServiceDetail('Physiotherapy Care', 'Specialized physical rehabilitation sessions for orthopedic recovery and mobility enhancement.')"></i>
+                <div class="service-icon-wrapper sc-physio">
+                    <i class="fas fa-running"></i>
+                </div>
+                <div class="service-label">Physiotherapy Care</div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="service-card" onclick="openServiceDetail('Mental Health Support', 'Confidential video counseling with licensed specialists for stress, anxiety, and corporate wellness.')">
+                <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); openServiceDetail('Mental Health Support', 'Confidential video counseling with licensed specialists for stress, anxiety, and corporate wellness.')"></i>
+                <div class="service-icon-wrapper sc-mental">
+                    <i class="fas fa-brain-circuit"></i>
+                </div>
+                <div class="service-label">Mental Health Support</div>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="service-card" onclick="openServiceDetail('Wellness Packages', 'Structured health checkups, biometric profiling, and comprehensive executive medical packages.')">
+                <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); openServiceDetail('Wellness Packages', 'Structured health checkups, biometric profiling, and comprehensive executive medical packages.')"></i>
+                <div class="service-icon-wrapper sc-wellness">
+                    <i class="fas fa-heart-circle-check"></i>
+                </div>
+                <div class="service-label">Wellness Packages</div>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="service-card" onclick="openServiceDetail('Vaccination Booking', 'Secure scheduling for flu shots, travel immunizations, and corporate vaccine rollouts.')">
+                <i class="fas fa-info-circle info-icon" onclick="event.stopPropagation(); openServiceDetail('Vaccination Booking', 'Secure scheduling for flu shots, travel immunizations, and corporate vaccine rollouts.')"></i>
+                <div class="service-icon-wrapper sc-vaccine">
+                    <i class="fas fa-syringe"></i>
+                </div>
+                <div class="service-label">Vaccination Booking</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3><i class="fas fa-heartbeat"></i> MediSync Corporate</h3>
+                <p>Providing enterprise-level health management systems, secure electronic record infrastructure, and clinical portals optimized for global healthcare networks.</p>
+                <div class="social-links">
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Quick Portal</h4>
+                <ul>
+                    <li><a href="login.html">Access Terminal</a></li>
+                    <li><a href="signup.html">Request Account</a></li>
+                    <li><a href="appointments.html">Encounter Logs</a></li>
+                    <li><a href="records.html">Clinical Vault</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>eServices</h4>
+                <ul>
+                    <li><a href="#">eMindCare Support</a></li>
+                    <li><a href="#">Driving license checkup</a></li>
+                    <li><a href="#">Prescription delivery</a></li>
+                    <li><a href="#">Pathology pricing</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Institutional FAQs</a></li>
+                    <li><a href="#">CORS Telemetry</a></li>
+                    <li><a href="#">System status (Active)</a></li>
+                    <li><a href="#">Contact MediSync</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 MediSync Pro. Corporate Health Network. All rights reserved.</p>
+            <p>Institutional Grade Secure Layer v4.2.1 • SLA Active</p>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE PORTAL TOAST -->
+    <div class="portal-toast" id="portal-toast">
+        <div class="toast-icon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="toast-content">
+            <h5 id="toast-title">Clinical Telemetry</h5>
+            <p id="toast-text">Details will display here.</p>
+        </div>
+    </div>
+
+    <!-- JS SCRIPTS FOR MICRO INTERACTIONS -->
+    <script>
+        function scrollToServices() {
+            document.getElementById('clinical-services').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        let isAdvSearchOpen = false;
+        function toggleAdvancedSearch() {
+            const panel = document.getElementById('adv-search-panel');
+            const link = document.querySelector('.advanced-search-link');
+            isAdvSearchOpen = !isAdvSearchOpen;
+            
+            if (isAdvSearchOpen) {
+                panel.style.display = 'flex';
+                link.innerHTML = `<i class="fas fa-sliders-h"></i> Close advanced search <i class="fas fa-chevron-up" style="font-size: 0.7rem;"></i>`;
+            } else {
+                panel.style.display = 'none';
+                link.innerHTML = `<i class="fas fa-sliders-h"></i> Advance search dropdown options <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>`;
+            }
+        }
+
+        function triggerSearch() {
+            const docName = document.getElementById('srch-doc').value;
+            const spec = document.getElementById('srch-spec').value;
+            const hosp = document.getElementById('srch-hosp').value;
+            
+            showToastMessage('Search Query Established', `Searching for Dr. "${docName || 'Any'}" | Spec: "${spec || 'All'}" | Hospital: "${hosp || 'All'}"`);
+        }
+
+        function openServiceDetail(title, desc) {
+            showToastMessage(title, desc);
+        }
+
+        function showToastMessage(title, text) {
+            const toast = document.getElementById('portal-toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-text').innerText = text;
+            
+            toast.classList.add('active');
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 6000);
+        }
+    </script>
+</body>
+</html>

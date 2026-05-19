@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Doctor Portal</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profile-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 1.5rem 0;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+        }
+        .profile-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: #EFF6FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: var(--primary);
+            font-weight: 700;
+            border: 1px solid #BFDBFE;
+            box-shadow: none;
+        }
+        .profile-info h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 0.4rem;
+        }
+        .profile-info p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        .edit-toggle {
+            margin-left: auto;
+        }
+        .form-section {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 2.2rem;
+            margin-bottom: 2rem;
+        }
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1.8rem;
+            color: #0F172A;
+            border-left: 4px solid var(--primary);
+            padding-left: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: #475569;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.8rem 1rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: inherit;
+            color: #0F172A;
+            background: #FFFFFF;
+            transition: all 0.15s ease;
+        }
+        .form-group input:read-only,
+        .form-group textarea:read-only {
+            background-color: #F8FAFC;
+            border-color: #E2E8F0;
+            color: #475569;
+            cursor: default;
+        }
+        .form-group input:not(:read-only):focus,
+        .form-group select:focus,
+        .form-group textarea:not(:read-only):focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .form-group textarea {
+            grid-column: 1 / -1;
+            min-height: 100px;
+            resize: vertical;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            border-top: 1px solid #E2E8F0;
+            padding-top: 1.5rem;
+        }
+        .button-group button {
+            padding: 0.75rem 2rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-save {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary) !important;
+        }
+        .btn-save:hover {
+            background: #1D4ED8;
+        }
+        .btn-cancel {
+            background: #FFFFFF;
+            color: #475569;
+        }
+        .btn-cancel:hover {
+            background: #F8FAFC;
+            color: #0F172A;
+        }
+        .btn-edit {
+            background: var(--primary);
+            color: white;
+            padding: 0.65rem 1.4rem;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: none;
+            transition: all 0.15s ease;
+        }
+        .btn-edit:hover {
+            background: #1D4ED8;
+            border-color: #1D4ED8;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .loading, .error {
+            padding: 2rem;
+            text-align: center;
+            border-radius: 12px;
+            margin: 2rem 0;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+        }
+        .loading {
+            color: var(--text-muted);
+        }
+        .error {
+            background: #FEF2F2;
+            border-color: #FCA5A5;
+            color: #DC2626;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .edit-toggle {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+        }
+
+        /* Premium Days Badges (View Mode) */
+        .days-badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+        }
+        .day-badge {
+            background: #EFF6FF;
+            color: var(--primary);
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #DBEAFE;
+        }
+        .day-badge.none {
+            background: #F1F5F9;
+            color: var(--text-muted);
+            border: 1px solid #E2E8F0;
+        }
+
+        /* Premium Day Chips Selector (Edit Mode) */
+        .days-selector-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+        }
+        .day-chip {
+            padding: 0.4rem 1rem;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748B;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .day-chip:hover {
+            border-color: #BFDBFE;
+            color: var(--primary);
+            background: #F8FAFC;
+        }
+        .day-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text"><h2>MediSync</h2><p>Pro System</p></div>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+            <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i> <span>Doctors</span></a>
+            <a href="doctor-profile.html" class="nav-item active"><i class="fas fa-id-card"></i> <span>My Profile</span></a>
+            <a href="appointments.html" class="nav-item"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a>
+            <a href="#" class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+        </nav>
+    </aside>
+
+    <div class="content-wrapper">
+        <header class="top-header" style="justify-content: flex-end;">
+            <div class="header-actions">
+                <div class="icon-btn notification-bell">
+                    <i class="far fa-bell"></i>
+                    <span class="notification-badge"></span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p class="user-name">Doctor Portal</p>
+                        <p class="user-role">Profile Management</p>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Doctor&background=2563eb&color=white" class="user-avatar" alt="Doctor">
+                </div>
+            </div>
+        </header>
+
+        <div class="profile-container">
+            <div id="loading" class="loading" style="display:none;">
+                <i class="fas fa-spinner fa-spin"></i> Loading your profile...
+            </div>
+            <div id="error" class="error" style="display:none;"></div>
+            <div id="profile-content" style="display:none;">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="avatar">D</div>
+                    <div class="profile-info">
+                        <h1 id="doctor-name">Doctor Name</h1>
+                        <p id="doctor-email">doctor@medisync.pro</p>
+                        <p id="doctor-specialization">Specialization</p>
+                    </div>
+                    <button class="btn-edit edit-toggle" onclick="toggleEditMode()" id="edit-btn">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="section-title">Professional Information</h2>
+                    <form id="profile-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="name" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="email" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" id="phone" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Specialization</label>
+                                <input type="text" id="specialization" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>License Number</label>
+                                <input type="text" id="licenseNumber" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Experience (Years)</label>
+                                <input type="number" id="experience" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Consultation Fee (LKR)</label>
+                                <input type="number" id="consultationFee" readonly step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>Available Days</label>
+                                <input type="hidden" id="availableDays">
+                                
+                                <!-- View mode container (badge lists) -->
+                                <div id="availableDays-view" class="days-badges-container">
+                                    <!-- Badges will be generated dynamically -->
+                                </div>
+                                
+                                <!-- Edit mode container (interactive chips selector) -->
+                                <div id="availableDays-edit" class="days-selector-container" style="display: none;">
+                                    <div class="day-chip" data-day="Monday">Monday</div>
+                                    <div class="day-chip" data-day="Tuesday">Tuesday</div>
+                                    <div class="day-chip" data-day="Wednesday">Wednesday</div>
+                                    <div class="day-chip" data-day="Thursday">Thursday</div>
+                                    <div class="day-chip" data-day="Friday">Friday</div>
+                                    <div class="day-chip" data-day="Saturday">Saturday</div>
+                                    <div class="day-chip" data-day="Sunday">Sunday</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section" style="margin-top: 2rem;">
+                            <h2 class="section-title">Account Security</h2>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>New Password (Leave blank to keep current)</label>
+                                    <input type="password" id="password" placeholder="••••••••" style="display:none;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="button-group" id="button-group" style="display:none;">
+                            <button type="button" class="btn-cancel" onclick="toggleEditMode()">Cancel</button>
+                            <button type="submit" class="btn-save">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        let isEditMode = false;
+        let currentDoctor = null;
+
+        async function loadDoctorProfile() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const content = document.getElementById('profile-content');
+
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            content.style.display = 'none';
+
+            try {
+                const doctor = await apiFetch('/doctors/me');
+                currentDoctor = doctor;
+
+                document.getElementById('doctor-name').textContent = doctor.name || 'Doctor';
+                document.getElementById('doctor-email').textContent = doctor.email || 'N/A';
+                document.getElementById('doctor-specialization').textContent = doctor.specialization || 'N/A';
+                
+                const initials = (doctor.name || 'D')
+                    .split(' ')
+                    .map(n => n[0])
+                    .join('')
+                    .substring(0, 2)
+                    .toUpperCase();
+                document.getElementById('avatar').textContent = initials;
+
+                document.getElementById('name').value = doctor.name || '';
+                document.getElementById('email').value = doctor.email || '';
+                document.getElementById('phone').value = doctor.phone || '';
+                document.getElementById('specialization').value = doctor.specialization || '';
+                document.getElementById('licenseNumber').value = doctor.licenseNumber || '';
+                document.getElementById('experience').value = doctor.experience || '';
+                document.getElementById('consultationFee').value = doctor.consultationFee || '';
+                document.getElementById('availableDays').value = doctor.availableDays || '';
+
+                // Render badges in view mode
+                const viewContainer = document.getElementById('availableDays-view');
+                viewContainer.innerHTML = '';
+
+                // Split on either space or comma
+                const daysStr = doctor.availableDays || '';
+                const days = daysStr.split(/[\s,]+/).filter(d => d.trim().length > 0);
+
+                if (days.length === 0) {
+                    viewContainer.innerHTML = '<span class="day-badge none">No available days set</span>';
+                } else {
+                    days.forEach(day => {
+                        const badge = document.createElement('span');
+                        badge.className = 'day-badge';
+                        badge.textContent = day;
+                        viewContainer.appendChild(badge);
+                    });
+                }
+
+                // Update selection in chips
+                const chips = document.querySelectorAll('.day-chip');
+                chips.forEach(chip => {
+                    const dayName = chip.getAttribute('data-day');
+                    if (days.some(d => d.toLowerCase() === dayName.toLowerCase())) {
+                        chip.classList.add('active');
+                    } else {
+                        chip.classList.remove('active');
+                    }
+                });
+
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            } catch (err) {
+                error.style.display = 'block';
+                error.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message || 'Failed to load profile'}`;
+                loading.style.display = 'none';
+            }
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const fields = document.querySelectorAll('#profile-form input, #profile-form textarea');
+            const buttonGroup = document.getElementById('button-group');
+            const editBtn = document.getElementById('edit-btn');
+
+            fields.forEach(field => {
+                if (field.id === 'password') {
+                    field.style.display = isEditMode ? 'block' : 'none';
+                    field.readOnly = false;
+                } else if (field.id !== 'email' && field.id !== 'licenseNumber') {
+                    field.readOnly = !isEditMode;
+                }
+            });
+
+            buttonGroup.style.display = isEditMode ? 'flex' : 'none';
+            editBtn.style.display = isEditMode ? 'none' : 'inline-block';
+
+            // Toggle view and edit day selector elements
+            document.getElementById('availableDays-view').style.display = isEditMode ? 'none' : 'flex';
+            document.getElementById('availableDays-edit').style.display = isEditMode ? 'flex' : 'none';
+        }
+
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            const data = {
+                name: document.getElementById('name').value,
+                email: currentDoctor.email,
+                phone: document.getElementById('phone').value,
+                specialization: document.getElementById('specialization').value,
+                licenseNumber: currentDoctor.licenseNumber,
+                experience: parseInt(document.getElementById('experience').value) || 0,
+                consultationFee: parseFloat(document.getElementById('consultationFee').value) || 0,
+                availableDays: document.getElementById('availableDays').value,
+                doctorType: currentDoctor.doctorType
+            };
+
+            const password = document.getElementById('password').value;
+            if (password) {
+                data.password = password;
+            }
+
+            try {
+                await apiFetch(`/doctors/${currentDoctor.id}`, 'PUT', data);
+                showToast('Profile updated successfully!', 'success');
+                toggleEditMode();
+                loadDoctorProfile();
+            } catch (error) {
+                showToast(error.message || 'Failed to update profile', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        function updateSelectedDays() {
+            const activeChips = document.querySelectorAll('.day-chip.active');
+            const selectedDays = Array.from(activeChips).map(chip => chip.getAttribute('data-day'));
+            document.getElementById('availableDays').value = selectedDays.join(' ');
+        }
+
+        // Add event listeners to day chips
+        document.querySelectorAll('.day-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                if (!isEditMode) return; // Only allow editing in edit mode!
+                chip.classList.toggle('active');
+                updateSelectedDays();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', loadDoctorProfile);
+    </script>
+</body>
+</html>
