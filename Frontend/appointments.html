@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Management | MediSync Pro</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .col-appt-time { width: 10%; }
+        .col-appt-patient { width: 22%; }
+        .col-appt-doctor { width: 22%; }
+        .col-appt-reason { width: 20%; }
+        .col-appt-status { width: 12%; }
+        .col-appt-actions { width: 14%; min-width: 140px; }
+
+        /* Premium status badge styles */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .status-badge.CONFIRMED, .status-badge.SCHEDULED {
+            background-color: #EFF6FF !important;
+            color: #2563EB !important;
+            border: 1px solid #BFDBFE !important;
+        }
+        .status-badge.COMPLETED {
+            background-color: #ECFDF5 !important;
+            color: #059669 !important;
+            border: 1px solid #A7F3D0 !important;
+        }
+        .status-badge.CANCELLED {
+            background-color: #FEF2F2 !important;
+            color: #DC2626 !important;
+            border: 1px solid #FCA5A5 !important;
+        }
+        .status-badge.PENDING {
+            background-color: #FFFBEB !important;
+            color: #D97706 !important;
+            border: 1px solid #FDE68A !important;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text"><h2>MediSync</h2><p>Pro System</p></div>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+            <a href="patients.html" class="nav-item"><i class="fas fa-users"></i> <span>Patients</span></a>
+            <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i> <span>Doctors</span></a>
+            
+            <a href="appointments.html" class="nav-item active"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a>
+            <a href="records.html" class="nav-item"><i class="fas fa-file-medical"></i> <span>Medical Records</span></a>
+            <a href="billing.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> <span>Billing</span></a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-user-shield"></i> <span>Admin</span></a>
+            <a href="#" class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+        </nav>
+    </aside>
+
+    <div class="content-wrapper">
+        <header class="top-header">
+            <div class="search-container">
+                <input type="text" id="system-search" placeholder="Search clinical cloud (Patient, Doctor, Reason)...">
+            </div>
+            <div class="header-actions">
+                <div class="icon-btn notification-bell">
+                    <i class="far fa-bell"></i>
+                    <span class="notification-badge"></span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p class="user-name">Administrator</p>
+                        <p class="user-role">System Level 4</p>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563eb&color=white" class="user-avatar" alt="Admin">
+                </div>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <div class="appt-mgmt-header">
+                <div>
+                    <h1>Appointment Management</h1>
+                </div>
+                <button class="btn-book-premium" onclick="openBookModal()">
+                    <i class="fas fa-plus"></i> Book Appointment
+                </button>
+            </div>
+
+            <div class="scheduler-layout">
+                <div class="roster-card">
+                    <div class="table-header">
+                        <h2>Today's Schedule</h2>
+                    </div>
+                    <table class="roster-table">
+                        <thead>
+                            <tr>
+                                <th class="col-appt-time">Time</th>
+                                <th class="col-appt-patient">Patient</th>
+                                <th class="col-appt-doctor">Doctor</th>
+                                <th class="col-appt-reason">Reason</th>
+                                <th class="col-appt-status">Status</th>
+                                <th class="col-appt-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appt-roster-body">
+                            <!-- Data injected here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="roster-card upcoming-card">
+                    <div class="table-header">
+                        <h2>Upcoming</h2>
+                    </div>
+                    <div id="upcoming-list" class="upcoming-list">
+                        <!-- Upcoming items here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <h2 style="margin-bottom: 2rem; color: var(--text-main); font-weight: 800; letter-spacing: -1px;">Book New Appointment</h2>
+            <form id="appt-form">
+                <div class="form-grid">
+                    <div class="form-group form-full">
+                        <label>Patient Selection</label>
+                        <select id="appt-patient" required>
+                            <option value="">Choose a Patient...</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Assigned Physician</label>
+                        <select id="appt-doctor" required>
+                            <option value="">Choose a Doctor...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Appointment Date</label>
+                        <input type="date" id="appt-date" required>
+                        <span id="appt-date-validation-msg" style="font-size: 0.85rem; display: block; margin-top: 0.5rem; font-weight: 700;"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Time Slot</label>
+                        <input type="time" id="appt-time" required>
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Clinical Reason for Visit</label>
+                        <textarea id="appt-reason" placeholder="Briefly describe the symptoms or reason..." required style="height: 100px;"></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 2.5rem; gap: 1.25rem;">
+                    <button type="button" class="btn-premium-outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-premium-primary" style="min-width: 200px;">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Patient Profile View Modal -->
+    <div id="patientDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 550px; padding: 2.5rem; border-radius: 24px; box-shadow: var(--shadow-2xl); position: relative;">
+            <button class="modal-close" onclick="closePatientDetailsModal()" style="color: var(--text-muted); background: transparent; border: none; font-size: 1.25rem; position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px dashed #f1f5f9; padding-bottom: 1.5rem;">
+                <div style="width: 56px; height: 56px; border-radius: 16px; background: rgba(37,99,235,0.08); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.75rem;">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div>
+                    <h2 id="det-name" style="font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; margin: 0; line-height: 1.2;">Patient Details</h2>
+                    <p id="det-type" style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin-top: 0.15rem; margin-bottom: 0;"></p>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1.25rem; font-size: 0.9rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">National ID (NIC)</span>
+                        <span id="det-nic" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">-</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Blood Group</span>
+                        <span id="det-blood" class="status-badge CONFIRMED" style="font-weight: 700; font-size: 0.8rem; padding: 0.15rem 0.5rem; border-radius: 6px;">-</span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Contact Number</span>
+                        <span id="det-phone" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">-</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Email Address</span>
+                        <span id="det-email" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">-</span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Date of Birth</span>
+                        <span id="det-dob" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">-</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Calculated Age</span>
+                        <span id="det-age" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">-</span>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px dashed #e2e8f0; padding-top: 1.25rem;">
+                    <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Residential Address</span>
+                    <span id="det-address" style="font-weight: 700; color: var(--text-main); line-height: 1.5;">-</span>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; margin-top: 2.5rem;">
+                <button class="btn-premium-primary" onclick="closePatientDetailsModal()" style="min-width: 150px;">Close Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        const isPatient = user && user.role === 'PATIENT';
+        const isDoctor = user && user.role === 'DOCTOR';
+
+        window.allAppts = [];
+        window.allPatients = [];
+        window.allDoctors = [];
+
+        async function loadData() {
+            try {
+                const [appts, patients, doctors] = await Promise.all([
+                    apiFetch('/appointments'),
+                    apiFetch('/patients'),
+                    apiFetch('/doctors')
+                ]);
+
+                window.allAppts = appts;
+                if (isDoctor) {
+                    window.allAppts = appts.filter(a => a.doctorId == user.id);
+                }
+                window.allPatients = patients;
+                window.allDoctors = doctors;
+
+                if (isDoctor) {
+                    // Hide the Book Appointment button
+                    const bookBtn = document.querySelector('.btn-book-premium');
+                    if (bookBtn) bookBtn.style.display = 'none';
+
+                    // Hide the doctor selector in reschedule modal
+                    const dGroup = document.getElementById('appt-doctor').closest('.form-group');
+                    if (dGroup) dGroup.style.display = 'none';
+
+                    // Update headers to "My Appointments"
+                    const mgmtHeader = document.querySelector('.appt-mgmt-header h1');
+                    if (mgmtHeader) mgmtHeader.innerText = 'My Appointments';
+
+                    const rosterHeader = document.querySelector('.roster-card h2');
+                    if (rosterHeader) rosterHeader.innerText = 'My Appointments';
+                }
+
+                if (isPatient) {
+                    // Hide the patient selector in reschedule modal
+                    const pGroup = document.getElementById('appt-patient').closest('.form-group');
+                    if (pGroup) pGroup.style.display = 'none';
+
+                    // Update headers to "My Appointments"
+                    const mgmtHeader = document.querySelector('.appt-mgmt-header h1');
+                    if (mgmtHeader) mgmtHeader.innerText = 'My Appointments';
+
+                    const rosterHeader = document.querySelector('.roster-card h2');
+                    if (rosterHeader) rosterHeader.innerText = 'My Appointments';
+
+                    // Change roster table headers
+                    const thead = document.querySelector('.roster-table thead');
+                    if (thead) {
+                        thead.innerHTML = `
+                            <tr>
+                                <th class="col-appt-time">Date</th>
+                                <th class="col-appt-time">Time</th>
+                                <th class="col-appt-doctor">Doctor</th>
+                                <th class="col-appt-reason">Reason</th>
+                                <th class="col-appt-status">Status</th>
+                                <th class="col-appt-actions">Actions</th>
+                            </tr>
+                        `;
+                    }
+                }
+
+                // Populate Selects
+                const pSelect = document.getElementById('appt-patient');
+                pSelect.innerHTML = '<option value="">Select Patient</option>' + 
+                    allPatients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+                
+                const dSelect = document.getElementById('appt-doctor');
+                dSelect.innerHTML = '<option value="">Select Doctor</option>' + 
+                    allDoctors.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+                if (isDoctor) {
+                    dSelect.value = user.id;
+                    dSelect.disabled = true;
+                }
+
+                renderAll();
+            } catch (error) {
+                showToast('Failed to sync clinical data', 'error');
+            }
+        }
+
+        function renderAll() {
+            renderRoster();
+            renderUpcoming();
+        }
+
+        function renderRoster() {
+            const tbody = document.getElementById('appt-roster-body');
+            const searchTerm = document.getElementById('system-search').value.toLowerCase().trim();
+            
+            const filtered = allAppts.filter(a => {
+                const patName = (allPatients.find(p => p.id == a.patientId)?.name || '').toLowerCase();
+                const docName = (allDoctors.find(d => d.id == a.doctorId)?.name || '').toLowerCase();
+                const reason = (a.reason || '').toLowerCase();
+                
+                return patName.includes(searchTerm) || 
+                       docName.includes(searchTerm) || 
+                       reason.includes(searchTerm);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    ${searchTerm ? 'No clinical matches found for "' + searchTerm + '"' : 'No clinical encounters scheduled.'}
+                </td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(a => {
+                const doc = allDoctors.find(d => d.id == a.doctorId)?.name || 'Unknown Doctor';
+                
+                // Only administrators can delete clinical encounters
+                const isUserAdmin = !isPatient && !isDoctor;
+                const deleteBtn = isUserAdmin ? `<button class="btn-action-light delete" data-action="delete" data-id="${a.id}"><i class="fas fa-trash-alt"></i></button>` : '';
+
+                if (isPatient) {
+                    return `
+                        <tr>
+                            <td><span class="user-name">${formatDate(a.appointmentDate)}</span></td>
+                            <td><span class="user-name">${a.appointmentTime ? a.appointmentTime.substring(0,5) : 'N/A'}</span></td>
+                            <td><span class="user-name">Dr. ${doc}</span></td>
+                            <td><span class="info-tag">${a.reason || 'N/A'}</span></td>
+                            <td><span class="status-badge ${a.status || 'SCHEDULED'}">${a.status || 'SCHEDULED'}</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <a href="billing.html?appointmentId=${a.id}" class="btn-action-light" title="View Paid Invoice" style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; color: var(--primary); background: rgba(37,99,235,0.08);"><i class="fas fa-file-invoice-dollar"></i></a>
+                                    ${deleteBtn}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    const pat = allPatients.find(p => p.id == a.patientId)?.name || 'Unknown Patient';
+                    
+                    if (isDoctor) {
+                        const isCompleted = a.status === 'COMPLETED';
+                        const statusBtn = isCompleted
+                            ? `<button class="btn-action-light revert" data-action="mark-undone" data-id="${a.id}" title="Undo Done" style="color: #64748B; background: #F1F5F9; border-color: #E2E8F0;"><i class="fas fa-undo"></i></button>`
+                            : `<button class="btn-action-light complete" data-action="mark-done" data-id="${a.id}" title="Mark Done" style="color: #059669; background: #EFF6FF; border-color: #BFDBFE;"><i class="fas fa-check-double"></i></button>`;
+
+                        return `
+                            <tr>
+                                <td><span class="user-name">${a.appointmentTime ? a.appointmentTime.substring(0,5) : 'N/A'}</span></td>
+                                <td>
+                                    <span class="user-name patient-trigger" data-patient-id="${a.patientId}" style="cursor: pointer; color: var(--primary); font-weight: 700; border-bottom: 1px dashed var(--primary); display: inline-flex; align-items: center; gap: 0.35rem;" title="View Patient Profile">
+                                        <i class="far fa-user-circle"></i> ${pat}
+                                    </span>
+                                </td>
+                                <td><span class="user-name">${doc}</span></td>
+                                <td><span class="info-tag">${a.reason || 'N/A'}</span></td>
+                                <td><span class="status-badge ${a.status || 'SCHEDULED'}">${a.status || 'SCHEDULED'}</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        ${statusBtn}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+
+                    return `
+                        <tr>
+                            <td><span class="user-name">${a.appointmentTime ? a.appointmentTime.substring(0,5) : 'N/A'}</span></td>
+                            <td>
+                                <span class="user-name patient-trigger" data-patient-id="${a.patientId}" style="cursor: pointer; color: var(--primary); font-weight: 700; border-bottom: 1px dashed var(--primary); display: inline-flex; align-items: center; gap: 0.35rem;" title="View Patient Profile">
+                                    <i class="far fa-user-circle"></i> ${pat}
+                                </span>
+                            </td>
+                            <td><span class="user-name">${doc}</span></td>
+                            <td><span class="info-tag">${a.reason || 'N/A'}</span></td>
+                            <td><span class="status-badge ${a.status || 'SCHEDULED'}">${a.status || 'SCHEDULED'}</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action-light" data-action="edit" data-id="${a.id}"><i class="fas fa-edit"></i></button>
+                                    ${deleteBtn}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }).join('');
+
+            // Attach event listeners programmatically
+            tbody.querySelectorAll('[data-action="delete"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    deleteAppt(id);
+                });
+            });
+
+            tbody.querySelectorAll('[data-action="edit"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    editAppt(id);
+                });
+            });
+
+            tbody.querySelectorAll('[data-action="mark-done"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    markEncounterDone(id);
+                });
+            });
+
+            tbody.querySelectorAll('[data-action="mark-undone"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    markEncounterUndone(id);
+                });
+            });
+
+            // Attach Patient trigger profile events
+            tbody.querySelectorAll('.patient-trigger').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const patId = el.getAttribute('data-patient-id');
+                    showPatientProfile(patId);
+                });
+            });
+        }
+
+        function renderUpcoming() {
+            const upcomingList = document.getElementById('upcoming-list');
+            const future = allAppts.filter(a => new Date(a.appointmentDate) >= new Date());
+            
+            if (future.length === 0) {
+                upcomingList.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 1rem;">No future bookings.</p>';
+                return;
+            }
+
+            upcomingList.innerHTML = future.slice(0, 5).map(a => {
+                const doc = allDoctors.find(d => d.id == a.doctorId)?.name || 'Unknown';
+                const displayName = isPatient ? `Dr. ${doc}` : (allPatients.find(p => p.id == a.patientId)?.name || 'Unknown');
+                return `
+                    <div class="upcoming-item">
+                        <h4>${displayName}</h4>
+                        <p>${formatDate(a.appointmentDate)} • ${a.appointmentTime ? a.appointmentTime.substring(0,5) : 'N/A'}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Live Search Handler
+        document.getElementById('system-search').addEventListener('input', renderRoster);
+
+        let editingId = null;
+        let isApptDateValid = false;
+
+        function validateApptDate() {
+            const docId = document.getElementById('appt-doctor').value;
+            const dateInput = document.getElementById('appt-date');
+            const validationMsg = document.getElementById('appt-date-validation-msg');
+            const selectedDate = dateInput.value;
+
+            if (!docId) {
+                validationMsg.style.color = '#ef4444';
+                validationMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please select a doctor first.';
+                isApptDateValid = false;
+                return false;
+            }
+
+            if (!selectedDate) {
+                validationMsg.textContent = '';
+                isApptDateValid = false;
+                return false;
+            }
+
+            // Find selected doctor details
+            const selectedDoctor = window.allDoctors.find(d => d.id == docId);
+            if (!selectedDoctor) {
+                isApptDateValid = true;
+                return true;
+            }
+
+            // Calculate weekday name
+            const dateParts = selectedDate.split('-');
+            const year = parseInt(dateParts[0]);
+            const month = parseInt(dateParts[1]) - 1;
+            const day = parseInt(dateParts[2]);
+            const dateObj = new Date(year, month, day);
+            const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }); // e.g. "Monday"
+
+            const doctorDaysStr = selectedDoctor.availableDays || '';
+            const allowedDays = doctorDaysStr.split(/[\s,]+/).filter(d => d.trim().length > 0).map(d => d.toLowerCase());
+
+            if (allowedDays.length === 0) {
+                validationMsg.style.color = '#f59e0b';
+                validationMsg.innerHTML = `<i class="fas fa-info-circle"></i> Dr. ${selectedDoctor.name} has not configured active days yet.`;
+                isApptDateValid = true;
+                return true;
+            }
+
+            if (allowedDays.includes(dayName.toLowerCase())) {
+                validationMsg.style.color = '#059669'; // Success green
+                validationMsg.innerHTML = `<i class="fas fa-check-circle"></i> Dr. ${selectedDoctor.name} is available on ${dayName}s.`;
+                isApptDateValid = true;
+                return true;
+            } else {
+                const formattedAllowed = allowedDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ');
+                validationMsg.style.color = '#dc2626'; // Error red
+                validationMsg.innerHTML = `<i class="fas fa-times-circle"></i> Dr. ${selectedDoctor.name} is not available on ${dayName}s. <br>Available days: <strong>${formattedAllowed}</strong>`;
+                isApptDateValid = false;
+                return false;
+            }
+        }
+
+        function openBookModal() {
+            if (isPatient) {
+                window.location.href = 'book-appointment.html';
+                return;
+            }
+            editingId = null;
+            document.getElementById('appt-form').reset();
+            document.getElementById('appt-date-validation-msg').textContent = '';
+            isApptDateValid = false;
+            document.getElementById('appointmentModal').querySelector('h2').innerText = 'Book New Appointment';
+            document.getElementById('appointmentModal').querySelector('button[type="submit"]').innerText = 'Confirm Booking';
+            document.getElementById('appointmentModal').classList.add('active');
+        }
+
+        async function editAppt(id) {
+            try {
+                const a = await apiFetch(`/appointments/${id}`);
+                editingId = id;
+                
+                document.getElementById('appt-patient').value = a.patientId;
+                document.getElementById('appt-doctor').value = a.doctorId;
+                document.getElementById('appt-date').value = a.appointmentDate;
+                document.getElementById('appt-time').value = a.appointmentTime.substring(0,5);
+                document.getElementById('appt-reason').value = a.reason;
+
+                document.getElementById('appointmentModal').querySelector('h2').innerText = 'Reschedule Appointment';
+                document.getElementById('appointmentModal').querySelector('button[type="submit"]').innerText = 'Save Changes';
+                document.getElementById('appointmentModal').classList.add('active');
+
+                // Validate after populating
+                validateApptDate();
+            } catch (error) {
+                showToast('Failed to load appointment details', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('appointmentModal').classList.remove('active');
+        }
+
+        document.getElementById('appt-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            if (!isApptDateValid) {
+                showToast('Please select a valid date matching doctor\'s available days.', 'error');
+                return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
+            btn.disabled = true;
+
+            const data = {
+                patientId: parseInt(document.getElementById('appt-patient').value),
+                doctorId: parseInt(document.getElementById('appt-doctor').value),
+                appointmentDate: document.getElementById('appt-date').value,
+                appointmentTime: document.getElementById('appt-time').value + ':00',
+                reason: document.getElementById('appt-reason').value
+            };
+
+            try {
+                const method = editingId ? 'PUT' : 'POST';
+                const url = editingId ? `/appointments/${editingId}` : '/appointments';
+                
+                await apiFetch(url, method, data);
+                showToast(editingId ? 'Appointment rescheduled' : 'Appointment booked', 'success');
+                closeModal();
+                loadData();
+                e.target.reset();
+            } catch (error) {
+                showToast(error.message || 'Operation failed', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        async function deleteAppt(id) {
+            console.log('deleteAppt initiated for ID:', id);
+            try {
+                const confirmed = await showCustomConfirm('Are you sure you want to cancel this clinical encounter?');
+                console.log('Confirmation result:', confirmed);
+                if (!confirmed) return;
+                
+                console.log('Sending DELETE request for ID:', id);
+                await apiFetch(`/appointments/${id}`, 'DELETE');
+                showToast('Appointment cancelled successfully', 'success');
+                loadData();
+            } catch (error) {
+                console.error('Error deleting appointment:', error);
+                showToast('Failed to cancel appointment: ' + error.message, 'error');
+            }
+        }
+
+        async function markEncounterDone(id) {
+            try {
+                const btn = document.querySelector(`[data-action="mark-done"][data-id="${id}"]`);
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+                
+                await apiFetch(`/appointments/${id}/complete`, 'PUT');
+                showToast('Appointment marked as COMPLETED successfully!', 'success');
+                loadData();
+            } catch (error) {
+                showToast(error.message || 'Failed to update encounter status', 'error');
+            }
+        }
+
+        async function markEncounterUndone(id) {
+            try {
+                const btn = document.querySelector(`[data-action="mark-undone"][data-id="${id}"]`);
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+                
+                const a = await apiFetch(`/appointments/${id}`);
+                const data = {
+                    patientId: a.patientId,
+                    doctorId: a.doctorId,
+                    appointmentDate: a.appointmentDate,
+                    appointmentTime: a.appointmentTime,
+                    reason: a.reason,
+                    status: 'CONFIRMED'
+                };
+                
+                await apiFetch(`/appointments/${id}`, 'PUT', data);
+                showToast('Appointment status reverted to CONFIRMED.', 'success');
+                loadData();
+            } catch (error) {
+                showToast(error.message || 'Failed to revert encounter status', 'error');
+            }
+        }
+
+        function showPatientProfile(patId) {
+            const pat = allPatients.find(p => p.id == patId);
+            if (!pat) {
+                showToast('Failed to load patient telemetry data', 'error');
+                return;
+            }
+
+            document.getElementById('det-name').innerText = pat.name || 'N/A';
+            document.getElementById('det-type').innerText = pat.patientType || 'OUTPATIENT';
+            document.getElementById('det-nic').innerText = pat.nic || 'N/A';
+            document.getElementById('det-blood').innerText = pat.bloodGroup || 'N/A';
+            document.getElementById('det-phone').innerText = pat.phone || 'N/A';
+            document.getElementById('det-email').innerText = pat.email || 'N/A';
+            const dobVal = pat.dateOfBirth || pat.dob;
+            document.getElementById('det-dob').innerText = dobVal ? formatDate(dobVal) : 'N/A';
+            document.getElementById('det-age').innerText = calculateAge(dobVal);
+            document.getElementById('det-address').innerText = pat.address || 'N/A';
+
+            document.getElementById('patientDetailsModal').classList.add('active');
+        }
+
+        function closePatientDetailsModal() {
+            document.getElementById('patientDetailsModal').classList.remove('active');
+        }
+
+        function calculateAge(dobStr) {
+            if (!dobStr) return 'N/A';
+            try {
+                const dob = new Date(dobStr);
+                if (isNaN(dob.getTime())) return 'N/A';
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const m = today.getMonth() - dob.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                return age + ' Years';
+            } catch (e) {
+                return 'N/A';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+
+            // Set minimum date on date picker
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appt-date').min = today;
+
+            // Add change/input event listeners
+            document.getElementById('appt-doctor').addEventListener('change', validateApptDate);
+            document.getElementById('appt-date').addEventListener('input', validateApptDate);
+            document.getElementById('appt-date').addEventListener('change', validateApptDate);
+        });
+    </script>
+</body>
+</html>

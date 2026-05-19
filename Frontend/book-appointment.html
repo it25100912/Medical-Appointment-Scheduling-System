@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment | MediSync Pro</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .premium-booking-card {
+    max-width: 850px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 28px;
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.appointment-header {
+    margin-bottom: 2rem;
+}
+
+.appointment-header h1 {
+    color: var(--text-main);
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -1px;
+}
+
+.appointment-header p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.form-section {
+    margin-bottom: 1.8rem;
+}
+
+.form-section label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-section input,
+.form-section textarea {
+    width: 100%;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+}
+
+.form-section input:focus,
+.form-section textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(37,99,235,0.15);
+}
+
+.doctor-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.doctor-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.doctor-card.selected {
+    border-color: var(--primary);
+    background: rgba(37,99,235,0.08);
+}
+
+.doctor-name {
+    color: var(--text-main);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.doctor-info {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.time-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.time-slot {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.time-slot:hover {
+    border-color: var(--primary);
+}
+
+.time-slot.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2.5rem;
+}
+
+.loading {
+    color: var(--text-muted);
+    padding: 1rem;
+}
+
+@media (max-width: 768px) {
+
+    .premium-booking-card {
+        padding: 1.5rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .appointment-header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* Checkout Modal Styles */
+.checkout-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.checkout-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.checkout-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 28px;
+    width: 100%;
+    max-width: 540px;
+    padding: 2.2rem;
+    box-shadow: var(--shadow-2xl);
+    transform: scale(0.9);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.checkout-modal-overlay.active .checkout-card {
+    transform: scale(1);
+}
+
+.checkout-header {
+    text-align: center;
+    margin-bottom: 1.8rem;
+}
+
+.checkout-header .secure-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+
+.checkout-header h2 {
+    color: var(--text-main);
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+/* Visual Card Preview */
+.visual-card-preview {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 20px;
+    padding: 1.5rem;
+    color: white;
+    position: relative;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+    margin-bottom: 1.8rem;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.visual-card-preview::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.card-chip {
+    width: 45px;
+    height: 35px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 6px;
+    position: relative;
+}
+
+.card-chip::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+
+.card-type-logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(255,255,255,0.8);
+}
+
+.preview-card-number {
+    font-size: 1.35rem;
+    letter-spacing: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.card-bottom {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-info-lbl {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 0.25rem;
+}
+
+.preview-holder-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.preview-expiry {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Processing Overlay */
+.processing-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ffffff !important;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100 !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 2.5rem;
+    text-align: center;
+}
+
+.processing-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.processing-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f1f5f9;
+    border-top: 5px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 10px rgba(37,99,235,0.1);
+}
+
+.processing-msg {
+    color: var(--text-main);
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.processing-sub {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes scaleUp {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-heartbeat"></i>
+            </div>
+            <div class="logo-text">
+                <h2>MediSync</h2>
+                <p>Pro System</p>
+            </div>
+        </div>
+
+        <nav class="nav-links">
+
+            <a href="appointments.html" class="nav-item active">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Appointments</span>
+            </a>
+
+            <a href="records.html" class="nav-item">
+                <i class="fas fa-file-medical"></i>
+                <span>Medical Records</span>
+            </a>
+
+            <a href="#" class="nav-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="content-wrapper">
+
+        <!-- HEADER -->
+        <header class="top-header">
+            <div>
+                <h2 style="color: var(--text-main); font-weight: 800;">
+                    Book Appointment
+                </h2>
+            </div>
+
+            <div class="header-actions">
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p class="user-name">Patient Portal</p>
+                        <p class="user-role">Healthcare Access</p>
+                    </div>
+
+                    <img
+                        src="https://ui-avatars.com/api/?name=Patient&background=2563eb&color=fff"
+                        class="user-avatar"
+                    >
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="content-body">
+
+            <div class="premium-booking-card">
+
+                <div class="appointment-header">
+                    <h1>Schedule Appointment</h1>
+                    <p>Book your healthcare consultation quickly and securely.</p>
+                </div>
+
+                <form id="appointment-form">
+
+                    <!-- DOCTOR -->
+                    <div class="form-section">
+                        <label>Select Doctor</label>
+
+                        <div id="doctor-list">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Loading doctors...
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="selected-doctor">
+                    </div>
+
+                    <!-- DATE -->
+                    <div class="form-section">
+                        <label>Appointment Date</label>
+
+                        <input type="date" id="appointment-date" required>
+                        <span id="date-validation-msg" style="font-size: 0.85rem; display: block; margin-top: 0.5rem; font-weight: 700;"></span>
+                    </div>
+
+                    <!-- TIME -->
+                    <div class="form-section">
+                        <label>Appointment Time</label>
+
+                        <div class="time-slots" id="time-slots"></div>
+
+                        <input type="hidden" id="selected-time">
+                    </div>
+
+                    <!-- REASON -->
+                    <div class="form-section">
+                        <label>Reason for Appointment</label>
+
+                        <textarea
+                            id="reason"
+                            rows="4"
+                            placeholder="Describe your symptoms or reason for visit..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <!-- NOTES -->
+                    <div class="form-section">
+                        <label>Additional Notes</label>
+
+                        <textarea
+                            id="notes"
+                            rows="3"
+                            placeholder="Any additional information..."
+                        ></textarea>
+                    </div>
+
+                    <!-- BUTTONS -->
+                    <div class="button-group">
+                        <button type="submit" class="btn-premium-primary">
+                            <i class="fas fa-calendar-check"></i>
+                            Confirm Booking
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn-premium-outline"
+                            onclick="window.history.back()"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div class="checkout-modal-overlay" id="checkoutModal">
+        <div class="checkout-card" style="position: relative; overflow: hidden;">
+            
+            <!-- Processing screen -->
+            <div class="processing-overlay" id="processingOverlay">
+                <div class="processing-spinner"></div>
+                <div class="processing-msg" id="processingMsg">Connecting...</div>
+                <div class="processing-sub" id="processingSub">Securing clinical transaction gateway</div>
+            </div>
+
+            <div class="checkout-header">
+                <div class="secure-badge">
+                    <i class="fas fa-shield-alt"></i> 128-bit SSL Secured
+                </div>
+                <h2>Clinical Telehealth Checkout</h2>
+            </div>
+
+            <!-- Visual Preview Card -->
+            <div class="visual-card-preview">
+                <div class="card-top">
+                    <div class="card-chip"></div>
+                    <div class="card-type-logo"><i class="fab fa-cc-visa" id="card-type-icon"></i></div>
+                </div>
+                <div class="preview-card-number" id="previewCardNumber">•••• •••• •••• ••••</div>
+                <div class="card-bottom">
+                    <div>
+                        <div class="card-info-lbl">Cardholder</div>
+                        <div class="preview-holder-name" id="previewHolderName">CARDHOLDER NAME</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="card-info-lbl">Expires</div>
+                        <div class="preview-expiry" id="previewExpiry">MM/YY</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Form -->
+            <form id="checkout-form">
+                <div class="form-section">
+                    <label>Cardholder Name</label>
+                    <input type="text" id="card-name" placeholder="John Doe" required style="text-transform: uppercase;">
+                </div>
+                <div class="form-section">
+                    <label>Card Number</label>
+                    <input type="text" id="card-number" placeholder="4111 2222 3333 4444" maxlength="19" required>
+                </div>
+                <div style="display: flex; gap: 1.25rem;">
+                    <div class="form-section" style="flex: 1;">
+                        <label>Expiry Date</label>
+                        <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" required>
+                    </div>
+                    <div class="form-section" style="flex: 1;">
+                        <label>CVV Code</label>
+                        <input type="password" id="card-cvv" placeholder="•••" maxlength="3" required>
+                    </div>
+                </div>
+
+                <div class="button-group" style="margin-top: 1.8rem;">
+                    <button type="submit" class="btn-premium-primary" style="flex: 1;" id="payBtn">
+                        <i class="fas fa-lock"></i> Pay & Confirm
+                    </button>
+                    <button type="button" class="btn-premium-outline" onclick="closeCheckout()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        const isPatient = user && user.role === 'PATIENT';
+        if (!isPatient) {
+            window.location.href = 'login.html';
+        }
+
+        let allDoctors = [];
+        let selectedDoctor = null;
+        let isDateValid = false;
+
+        async function loadDoctors() {
+            try {
+                const doctors = await apiFetch('/doctors');
+                allDoctors = doctors;
+                const docList = document.getElementById('doctor-list');
+                if (!doctors || doctors.length === 0) {
+                    docList.innerHTML = '<div class="loading">No doctors available.</div>';
+                    return;
+                }
+                docList.innerHTML = doctors.map(doctor => {
+                    const daysStr = doctor.availableDays || '';
+                    const days = daysStr.split(/[\s,]+/).filter(d => d.trim().length > 0);
+                    const daysText = days.length > 0 ? days.join(', ') : 'Not Configured';
+                    return `
+                        <div class="doctor-card" data-id="${doctor.id}">
+                            <div class="doctor-name">Dr. ${doctor.name}</div>
+                            <div class="doctor-info">
+                                <strong>${doctor.specialization || 'General Practitioner'}</strong> • Fee: LKR ${doctor.consultationFee || '1500'}<br>
+                                <span class="days-text" style="font-size: 0.8rem; color: var(--primary); font-weight: 700;"><i class="far fa-calendar-alt"></i> Available: ${daysText}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add click handlers
+                document.querySelectorAll('.doctor-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        document.querySelectorAll('.doctor-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        const docId = parseInt(card.dataset.id);
+                        document.getElementById('selected-doctor').value = docId;
+                        selectedDoctor = allDoctors.find(d => d.id === docId);
+                        validateDate();
+                    });
+                });
+            } catch (err) {
+                document.getElementById('doctor-list').innerHTML = '<div class="loading" style="color: #ef4444;"><i class="fas fa-exclamation-circle"></i> Failed to load doctors.</div>';
+            }
+        }
+
+        function validateDate() {
+            const dateInput = document.getElementById('appointment-date');
+            const validationMsg = document.getElementById('date-validation-msg');
+            const selectedDate = dateInput.value;
+
+            if (!selectedDoctor) {
+                validationMsg.style.color = '#ef4444';
+                validationMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please select a doctor first.';
+                isDateValid = false;
+                return false;
+            }
+
+            if (!selectedDate) {
+                validationMsg.textContent = '';
+                isDateValid = false;
+                return false;
+            }
+
+            // Calculate weekday name
+            const dateParts = selectedDate.split('-');
+            const year = parseInt(dateParts[0]);
+            const month = parseInt(dateParts[1]) - 1;
+            const day = parseInt(dateParts[2]);
+            const dateObj = new Date(year, month, day);
+            const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }); // e.g. "Monday"
+
+            const doctorDaysStr = selectedDoctor.availableDays || '';
+            const allowedDays = doctorDaysStr.split(/[\s,]+/).filter(d => d.trim().length > 0).map(d => d.toLowerCase());
+
+            if (allowedDays.length === 0) {
+                // If doctor has not configured days, allow booking but show info
+                validationMsg.style.color = '#f59e0b';
+                validationMsg.innerHTML = `<i class="fas fa-info-circle"></i> Dr. ${selectedDoctor.name} has not configured active days yet.`;
+                isDateValid = true;
+                return true;
+            }
+
+            if (allowedDays.includes(dayName.toLowerCase())) {
+                validationMsg.style.color = '#059669'; // Success green
+                validationMsg.innerHTML = `<i class="fas fa-check-circle"></i> Dr. ${selectedDoctor.name} is available on ${dayName}s.`;
+                isDateValid = true;
+                return true;
+            } else {
+                const formattedAllowed = allowedDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ');
+                validationMsg.style.color = '#dc2626'; // Error red
+                validationMsg.innerHTML = `<i class="fas fa-times-circle"></i> Dr. ${selectedDoctor.name} is not available on ${dayName}s. <br>Available days: <strong>${formattedAllowed}</strong>`;
+                isDateValid = false;
+                return false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDoctors();
+
+            // Set minimum date on date picker
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointment-date').min = today;
+
+            // Trigger validation when date changes
+            document.getElementById('appointment-date').addEventListener('input', validateDate);
+            document.getElementById('appointment-date').addEventListener('change', validateDate);
+
+            // Render time slots
+            const timeSlots = [
+                { value: "09:00:00", label: "09:00 AM" },
+                { value: "09:30:00", label: "09:30 AM" },
+                { value: "10:00:00", label: "10:00 AM" },
+                { value: "10:30:00", label: "10:30 AM" },
+                { value: "11:00:00", label: "11:00 AM" },
+                { value: "11:30:00", label: "11:30 AM" },
+                { value: "14:00:00", label: "02:00 PM" },
+                { value: "14:30:00", label: "02:30 PM" },
+                { value: "15:00:00", label: "03:00 PM" },
+                { value: "15:30:00", label: "03:30 PM" },
+                { value: "16:00:00", label: "04:00 PM" },
+                { value: "16:30:00", label: "04:30 PM" }
+            ];
+
+            const slotsContainer = document.getElementById('time-slots');
+            slotsContainer.innerHTML = timeSlots.map(slot => `
+                <div class="time-slot" data-value="${slot.value}">${slot.label}</div>
+            `).join('');
+
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.addEventListener('click', () => {
+                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    slot.classList.add('selected');
+                    document.getElementById('selected-time').value = slot.dataset.value;
+                });
+            });
+        });
+
+        let pendingBookingData = null;
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('active');
+            document.getElementById('checkout-form').reset();
+            document.getElementById('processingOverlay').classList.remove('active');
+            document.getElementById('previewCardNumber').textContent = '•••• •••• •••• ••••';
+            document.getElementById('previewHolderName').textContent = 'CARDHOLDER NAME';
+            document.getElementById('previewExpiry').textContent = 'MM/YY';
+            document.getElementById('card-type-icon').className = 'fas fa-credit-card';
+            pendingBookingData = null;
+        }
+
+        // Card Preview Real-Time Formatting & Sync
+        document.getElementById('card-name').addEventListener('input', (e) => {
+            const val = e.target.value.toUpperCase();
+            document.getElementById('previewHolderName').textContent = val || 'CARDHOLDER NAME';
+        });
+
+        document.getElementById('card-number').addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            // Auto spacing every 4 digits
+            let formatted = '';
+            for (let i = 0; i < val.length; i++) {
+                if (i > 0 && i % 4 === 0) formatted += ' ';
+                formatted += val[i];
+            }
+            e.target.value = formatted;
+            document.getElementById('previewCardNumber').textContent = formatted || '•••• •••• •••• ••••';
+
+            // Detect card brand icon
+            const icon = document.getElementById('card-type-icon');
+            if (val.startsWith('4')) {
+                icon.className = 'fab fa-cc-visa';
+            } else if (val.startsWith('5')) {
+                icon.className = 'fab fa-cc-mastercard';
+            } else if (val.startsWith('3')) {
+                icon.className = 'fab fa-cc-amex';
+            } else {
+                icon.className = 'fas fa-credit-card';
+            }
+        });
+
+        document.getElementById('card-expiry').addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length > 2) {
+                val = val.substring(0, 2) + '/' + val.substring(2, 4);
+            }
+            e.target.value = val;
+            document.getElementById('previewExpiry').textContent = val || 'MM/YY';
+        });
+
+        document.getElementById('card-cvv').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
+        // Intercept Appointment Form Submit
+        document.getElementById('appointment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const doctorId = document.getElementById('selected-doctor').value;
+            const appointmentDate = document.getElementById('appointment-date').value;
+            const appointmentTime = document.getElementById('selected-time').value;
+            const reason = document.getElementById('reason').value;
+            const notes = document.getElementById('notes').value;
+
+            if (!doctorId) {
+                showToast('Please select a doctor.', 'error');
+                return;
+            }
+            if (!isDateValid) {
+                showToast('Please select a valid date matching doctor\'s available days.', 'error');
+                return;
+            }
+            if (!appointmentTime) {
+                showToast('Please select an appointment time.', 'error');
+                return;
+            }
+
+            pendingBookingData = {
+                patientId: user.id ? parseInt(user.id) : null,
+                doctorId: parseInt(doctorId),
+                appointmentDate: appointmentDate,
+                appointmentTime: appointmentTime,
+                reason: reason,
+                notes: notes || 'Online Booking',
+                status: 'CONFIRMED'
+            };
+
+            const fee = selectedDoctor.consultationFee || 1500;
+            document.getElementById('payBtn').innerHTML = `<i class="fas fa-lock"></i> Pay & Confirm (LKR ${fee})`;
+            
+            // Show secure checkout modal
+            document.getElementById('checkoutModal').classList.add('active');
+        });
+
+        // Checkout Payment Flow Submit
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!pendingBookingData) return;
+
+            const overlay = document.getElementById('processingOverlay');
+            const msg = document.getElementById('processingMsg');
+            const sub = document.getElementById('processingSub');
+            const fee = selectedDoctor.consultationFee || 1500;
+
+            // Activate clinical checkout loading states
+            overlay.classList.add('active');
+
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+
+            try {
+                // Securing dynamic patient ID resolution
+                let resolvedPatientId = user.id ? parseInt(user.id) : null;
+                if (!resolvedPatientId || isNaN(resolvedPatientId)) {
+                    msg.textContent = '🔒 Resolving Clinical Credentials...';
+                    sub.textContent = 'Synchronizing secure medical record ID from backend...';
+                    const me = await apiFetch('/patients/me');
+                    resolvedPatientId = me.id;
+                    user.id = me.id;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    await delay(500);
+                }
+
+                pendingBookingData.patientId = resolvedPatientId;
+
+                msg.textContent = '🔒 Securing Connection...';
+                sub.textContent = 'Establishing secure end-to-end clinical socket...';
+                await delay(800);
+
+                msg.textContent = '💳 Verifying Card Details...';
+                sub.textContent = `Processing transaction of LKR ${fee} via dummy portal...`;
+                await delay(1200);
+
+                msg.textContent = '🧬 Completing Clinical Slot Booking & Payment...';
+                sub.textContent = 'Registering patient and clearing paid clinical credentials...';
+                
+                // Submit appointment and billing atomically to backend
+                const appointment = await apiFetch('/appointments', 'POST', pendingBookingData);
+                await delay(1000);
+
+                // Show stunning payment success feedback screen
+                msg.innerHTML = `
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 3.5rem; display: block; margin-bottom: 1rem; animation: scaleUp 0.3s ease;"></i>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Payment Successful!</div>
+                `;
+                
+                sub.innerHTML = `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; margin-top: 1rem; text-align: left; width: 100%; box-sizing: border-box;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: #64748b;">
+                            <span>Amount Paid:</span>
+                            <strong style="color: #0f172a;">LKR ${fee.toFixed(2)}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: #64748b;">
+                            <span>Status:</span>
+                            <span style="color: #10b981; font-weight: 700;">PAID IN FULL</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #64748b;">
+                            <span>Transaction ID:</span>
+                            <strong style="color: #0f172a; font-family: monospace;">TXN-${Math.floor(100000 + Math.random() * 900000)}</strong>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; font-size: 0.85rem; color: #64748b; font-weight: 500;">
+                        Redirecting to your appointments in a moment...
+                    </div>
+                `;
+                
+                await delay(2500);
+
+                showToast('Appointment successfully confirmed and invoice paid!', 'success');
+                closeCheckout();
+                window.location.href = 'appointments.html';
+
+            } catch (error) {
+                overlay.classList.remove('active');
+                showToast(error.message || 'Payment or Booking failed. Please try again.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

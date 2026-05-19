@@ -3,8 +3,9 @@ package com.medicalapp.admin.service;
 import com.medicalapp.admin.dto.AdminRequestDTO;
 import com.medicalapp.admin.dto.AdminResponseDTO;
 import com.medicalapp.admin.entity.Admin;
-import com.medicalapp.admin.repository.FileAdminRepository;
-import com.medicalapp.common.exception.DuplicateEntryException;
+import com.medicalapp.admin.repository.AdminRepository;
+import com.medicalapp.auth.entity.User;
+import com.medicalapp.auth.repository.FileUserRepository;
 import com.medicalapp.common.exception.ResourceNotFoundException;
 import com.medicalapp.common.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class AdminService implements IAdminService {
 
-    private final FileAdminRepository adminRepository;
+    private final AdminRepository adminRepository;
+    private final FileUserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
@@ -31,7 +33,20 @@ public class AdminService implements IAdminService {
         admin.setPassword(passwordEncoder.encode(dto.getPassword()));
         admin.setRole(dto.getRole());
 
-        return mapEntityToResponseDto(adminRepository.save(admin));
+        Admin saved = adminRepository.save(admin);
+
+        // create corresponding User record in users.txt
+        if (saved.getId() != null) {
+            User user = new User();
+            user.setId(saved.getId());
+            user.setEmail(saved.getEmail());
+            user.setPassword(saved.getPassword());
+            user.setName(saved.getUsername());
+            user.setRole(User.Role.ADMIN);
+            userRepository.save(user);
+        }
+
+        return mapEntityToResponseDto(saved);
     }
 
     @Override
@@ -57,12 +72,24 @@ public class AdminService implements IAdminService {
         existing.setEmail(dto.getEmail());
         existing.setRole(dto.getRole());
 
-        return mapEntityToResponseDto(adminRepository.save(existing));
+        Admin saved = adminRepository.save(existing);
+
+        // update corresponding User record if present
+        userRepository.findById(saved.getId()).ifPresent(user -> {
+            user.setEmail(saved.getEmail());
+            user.setName(saved.getUsername());
+            user.setRole(User.Role.ADMIN);
+            userRepository.save(user);
+        });
+
+        return mapEntityToResponseDto(saved);
     }
 
     @Override
     public void deleteAdmin(Long id) {
         adminRepository.deleteById(id);
+        // remove user record if exists
+        userRepository.deleteById(id);
     }
 
     @Override
@@ -75,7 +102,13 @@ public class AdminService implements IAdminService {
         }
 
         admin.setPassword(passwordEncoder.encode(newPassword));
-        adminRepository.save(admin);
+        Admin saved = adminRepository.save(admin);
+
+        // sync password to users.txt
+        userRepository.findById(saved.getId()).ifPresent(user -> {
+            user.setPassword(saved.getPassword());
+            userRepository.save(user);
+        });
     }
 
     private AdminResponseDTO mapEntityToResponseDto(Admin admin) {

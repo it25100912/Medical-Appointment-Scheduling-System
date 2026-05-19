@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Revenue | MediSync Pro</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .invoice-receipt-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .invoice-receipt-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .invoice-statement-card {
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 600px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-2xl);
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .invoice-receipt-modal.active .invoice-statement-card {
+            transform: scale(1);
+        }
+
+        /* Invoice Statement Styles */
+        .statement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px dashed #e2e8f0;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .statement-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #00539C;
+            font-weight: 800;
+            font-size: 1.4rem;
+        }
+
+        .statement-title {
+            text-align: right;
+        }
+
+        .statement-title h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+        }
+
+        .statement-title p {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .statement-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .statement-meta-item strong {
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .statement-meta-item span {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .statement-ledger {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        .statement-ledger th {
+            text-align: left;
+            padding: 0.75rem 0.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .statement-ledger td {
+            padding: 1rem 0.5rem;
+            font-size: 0.9rem;
+            color: #0f172a;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .statement-total-bar {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .statement-total-bar span {
+            color: #475569;
+        }
+
+        .statement-total-bar strong {
+            font-size: 1.25rem;
+            color: #00539C;
+        }
+
+        .statement-footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .statement-barcode {
+            font-family: 'Libre Barcode 39', 'Courier New', Courier, monospace;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            margin: 1rem 0 0.5rem 0;
+            color: #0f172a;
+        }
+
+        .print-btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        @media print {
+            body > *:not(#statementModal) {
+                display: none !important;
+            }
+            .invoice-receipt-modal {
+                position: static !important;
+                display: block !important;
+                background: transparent !important;
+                backdrop-filter: none !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+            .invoice-statement-card {
+                position: static !important;
+                transform: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #print-area {
+                position: static !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .print-btn-group, .modal-close {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text"><h2>MediSync</h2><p>Pro System</p></div>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+            <a href="patients.html" class="nav-item"><i class="fas fa-users"></i> <span>Patients</span></a>
+            <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i> <span>Doctors</span></a>
+            
+            <a href="appointments.html" class="nav-item"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a>
+            <a href="records.html" class="nav-item"><i class="fas fa-file-medical"></i> <span>Medical Records</span></a>
+            <a href="billing.html" class="nav-item active"><i class="fas fa-file-invoice-dollar"></i> <span>Billing</span></a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-user-shield"></i> <span>Admin</span></a>
+            <a href="#" class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+        </nav>
+    </aside>
+
+    <div class="content-wrapper">
+        <header class="top-header">
+            <div class="search-container">
+                <input type="text" id="system-search" placeholder="Search clinical cloud (Patient, Invoice, Category)...">
+            </div>
+            <div class="header-actions">
+                <div class="icon-btn notification-bell">
+                    <i class="far fa-bell"></i>
+                    <span class="notification-badge"></span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p class="user-name">Administrator</p>
+                        <p class="user-role">System Level 4</p>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563eb&color=white" class="user-avatar" alt="Admin">
+                </div>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <div class="billing-header">
+                <div>
+                    <h1>Billing & Revenue</h1>
+                    <p style="color: var(--text-muted); font-weight: 500;">Financial reconciliation and invoice tracking terminal.</p>
+                </div>
+                <button class="btn-add-premium" onclick="openBillingModal()">
+                    <i class="fas fa-plus"></i> Create Invoice
+                </button>
+            </div>
+
+            <div class="roster-card">
+                <table class="roster-table">
+                    <thead>
+                        <tr>
+                            <th class="col-id">Invoice #</th>
+                            <th class="col-patient">Patient</th>
+                            <th class="col-cat">Category</th>
+                            <th class="col-blood">Amount</th>
+                            <th class="col-status">Status</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billing-roster-body">
+                        <!-- Data injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Billing Modal -->
+    <div id="billingModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <h2 style="margin-bottom: 2rem; color: var(--text-main); font-weight: 800; letter-spacing: -1px;">Generate Invoice</h2>
+            <form id="billing-form">
+                <div class="flex-col gap-4">
+                    <div class="form-group">
+                        <label>Billable Patient</label>
+                        <select id="bill-patient" required>
+                            <option value="">Select a patient for billing...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Service Category</label>
+                        <input type="text" id="bill-cat" placeholder="e.g. General Consultation, Lab Test" required>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Total Amount (LKR)</label>
+                            <input type="number" id="bill-amount" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Payment Status</label>
+                            <select id="bill-status">
+                                <option value="PENDING">Pending Payment</option>
+                                <option value="PAID">Paid in Full</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 2.5rem; gap: 1.25rem;">
+                    <button type="button" class="btn-premium-outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-premium-primary" style="min-width: 200px;">Generate Invoice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- INVOICE STATEMENT MODAL -->
+    <div class="invoice-receipt-modal" id="statementModal">
+        <div class="invoice-statement-card">
+            
+            <button class="modal-close" onclick="closeStatement()" style="color: #64748b; background: transparent; border: none; font-size: 1.25rem; position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- Printable content start -->
+            <div id="print-area">
+                <div class="statement-header">
+                    <div class="statement-logo">
+                        <i class="fas fa-heartbeat"></i> MediSync Clinical Group
+                    </div>
+                    <div class="statement-title">
+                        <h3>Official Receipt</h3>
+                        <p id="receipt-invoice-number">#INV-168000</p>
+                    </div>
+                </div>
+
+                <div class="statement-meta-grid">
+                    <div class="statement-meta-item">
+                        <strong>Patient Name:</strong> <span id="receipt-patient-name">John Doe</span>
+                    </div>
+                    <div class="statement-meta-item">
+                        <strong>Receipt Date:</strong> <span id="receipt-paid-date">N/A</span>
+                    </div>
+                    <div class="statement-meta-item">
+                        <strong>Service Type:</strong> <span>Outpatient (OPD) Consultation</span>
+                    </div>
+                    <div class="statement-meta-item">
+                        <strong>Gateway Status:</strong> <span style="color: #10b981;">PAID</span>
+                    </div>
+                </div>
+
+                <table class="statement-ledger">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th style="text-align: right;">Unit Charge</th>
+                            <th style="text-align: right;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Clinical Consultation Fee (Pre-paid)</td>
+                            <td style="text-align: right;" id="receipt-ledger-unit">LKR 1500.00</td>
+                            <td style="text-align: right;" id="receipt-ledger-amount">LKR 1500.00</td>
+                        </tr>
+                        <tr>
+                            <td>Secure Online Gateway Processing</td>
+                            <td style="text-align: right;">LKR 0.00</td>
+                            <td style="text-align: right;">LKR 0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="statement-total-bar">
+                    <span>Grand Total Received</span>
+                    <strong id="receipt-ledger-total">LKR 1500.00</strong>
+                </div>
+
+                <div class="statement-footer">
+                    <p>Thank you for choosing MediSync Telehealth clinical services.</p>
+                    <p style="font-weight: 700; margin-top: 0.25rem;">This is a secure system-generated transaction receipt. No signature required.</p>
+                    
+                    <!-- Simulated Barcode -->
+                    <div class="statement-barcode" id="receipt-barcode">||| ||| ||| ||| ||| ||| |||</div>
+                    <p style="font-size: 0.65rem; text-transform: uppercase; color: #94a3b8;" id="receipt-auth-code">AUTH-TRAN-DUMMY</p>
+                </div>
+            </div>
+            <!-- Printable content end -->
+
+            <div class="print-btn-group">
+                <button class="btn-premium-primary" style="flex: 1;" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Statement
+                </button>
+                <button class="btn-premium-outline" onclick="closeStatement()">
+                    Close Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        const isPatient = user && user.role === 'PATIENT';
+        const isDoctor = user && user.role === 'DOCTOR';
+
+        window.allBills = [];
+        window.allPatients = [];
+
+        async function loadBills() {
+            try {
+                if (isPatient) {
+                    // Hide Create Invoice Button
+                    const createBtn = document.querySelector('.btn-add-premium');
+                    if (createBtn) createBtn.style.display = 'none';
+
+                    // Update Header Titles
+                    const h1 = document.querySelector('.billing-header h1');
+                    if (h1) h1.innerText = 'My Invoices';
+                    const p = document.querySelector('.billing-header p');
+                    if (p) p.innerText = 'Track and print your clinical consultation receipts.';
+                }
+
+                const [bills, patients] = await Promise.all([
+                    apiFetch('/billing'),
+                    apiFetch('/patients')
+                ]);
+
+                window.allBills = bills;
+                if (isPatient) {
+                    window.allBills = bills.filter(b => b.patientId == user.id);
+                }
+                window.allPatients = patients;
+
+                // Populate patient select
+                const pSelect = document.getElementById('bill-patient');
+                pSelect.innerHTML = '<option value="">Select Patient</option>' + 
+                    allPatients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+                renderBills();
+
+                // Auto-open specific invoice if redirected from appointments
+                const urlParams = new URLSearchParams(window.location.search);
+                const apptId = urlParams.get('appointmentId');
+                if (apptId) {
+                    const bill = window.allBills.find(b => b.appointmentId == apptId);
+                    if (bill) {
+                        openStatement(bill.id);
+                    } else {
+                        showToast('No transaction invoice found for this encounter.', 'info');
+                    }
+                }
+            } catch (error) {
+                showToast('Failed to load financial records', 'error');
+            }
+        }
+
+        function renderBills() {
+            const tbody = document.getElementById('billing-roster-body');
+            const searchTerm = document.getElementById('system-search').value.toLowerCase().trim();
+            
+            const filtered = allBills.filter(b => {
+                const patName = (allPatients.find(p => p.id == b.patientId)?.name || '').toLowerCase();
+                const category = (b.billingCategory || '').toLowerCase();
+                const invNum = (b.invoiceNumber || '').toLowerCase();
+                
+                return patName.includes(searchTerm) || 
+                       category.includes(searchTerm) || 
+                       invNum.includes(searchTerm);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    ${searchTerm ? 'No billing matches found for "' + searchTerm + '"' : 'No clinical invoices found.'}
+                </td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(b => {
+                const patName = allPatients.find(p => p.id == b.patientId)?.name || 'Unknown';
+                const receiptBtn = `<button class="btn-action-light" onclick="openStatement(${b.id})" title="View Receipt" style="color: var(--primary); background: rgba(37,99,235,0.08); width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-file-invoice"></i></button>`;
+
+                const actionHtml = isPatient ? receiptBtn : `
+                    <div class="action-btns">
+                        <button class="btn-action-light" onclick="editBill(${b.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                        ${receiptBtn}
+                        <button class="btn-action-light delete" onclick="deleteBill(${b.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                `;
+
+                return `
+                    <tr>
+                        <td><span class="user-name">#${b.invoiceNumber || 'INV-'+b.id}</span></td>
+                        <td><span class="user-name">${patName}</span></td>
+                        <td><span class="info-tag">${b.billingCategory}</span></td>
+                        <td><span class="user-name">LKR ${b.amount.toFixed(2)}</span></td>
+                        <td><span class="status-badge ${b.status === 'PAID' ? 'CONFIRMED' : 'PENDING'}">${b.status}</span></td>
+                        <td>${actionHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openStatement(id) {
+            const b = allBills.find(x => x.id == id);
+            if (!b) return;
+
+            const patName = allPatients.find(p => p.id == b.patientId)?.name || 'Patient';
+            
+            document.getElementById('receipt-invoice-number').innerText = '#' + (b.invoiceNumber || 'INV-' + b.id);
+            document.getElementById('receipt-patient-name').innerText = patName;
+            document.getElementById('receipt-paid-date').innerText = b.billingDate ? new Date(b.billingDate).toLocaleDateString() : new Date().toLocaleDateString();
+            document.getElementById('receipt-ledger-unit').innerText = `LKR ${b.amount.toFixed(2)}`;
+            document.getElementById('receipt-ledger-amount').innerText = `LKR ${b.amount.toFixed(2)}`;
+            document.getElementById('receipt-ledger-total').innerText = `LKR ${b.amount.toFixed(2)}`;
+            
+            // Format dynamic barcode value
+            document.getElementById('receipt-barcode').innerText = `*MS-${b.id}-${b.patientId}*`;
+            document.getElementById('receipt-auth-code').innerText = `AUTH-CODE: MS-TRAN-${Math.floor(100000 + Math.random() * 900000)}`;
+
+            document.getElementById('statementModal').classList.add('active');
+        }
+
+        function closeStatement() {
+            document.getElementById('statementModal').classList.remove('active');
+        }
+
+        // Live Search Handler
+        document.getElementById('system-search').addEventListener('input', renderBills);
+
+        let editingId = null;
+
+        function openBillingModal() {
+            editingId = null;
+            document.getElementById('billing-form').reset();
+            document.getElementById('billingModal').querySelector('h2').innerText = 'Generate New Invoice';
+            document.getElementById('billingModal').querySelector('button[type="submit"]').innerText = 'Generate Invoice';
+            document.getElementById('billingModal').classList.add('active');
+        }
+
+        async function editBill(id) {
+            try {
+                const b = await apiFetch(`/billing/${id}`);
+                editingId = id;
+                
+                document.getElementById('bill-patient').value = b.patientId;
+                document.getElementById('bill-cat').value = b.billingCategory;
+                document.getElementById('bill-amount').value = b.amount;
+                document.getElementById('bill-status').value = b.status;
+
+                document.getElementById('billingModal').querySelector('h2').innerText = 'Update Billing Record';
+                document.getElementById('billingModal').querySelector('button[type="submit"]').innerText = 'Save Changes';
+                document.getElementById('billingModal').classList.add('active');
+            } catch (error) {
+                showToast('Failed to load invoice details', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('billingModal').classList.remove('active');
+        }
+
+        document.getElementById('billing-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            const data = {
+                patientId: parseInt(document.getElementById('bill-patient').value),
+                billingCategory: document.getElementById('bill-cat').value,
+                amount: parseFloat(document.getElementById('bill-amount').value),
+                status: document.getElementById('bill-status').value,
+                invoiceNumber: editingId ? null : 'INV-' + Math.floor(1000 + Math.random() * 9000)
+            };
+
+            try {
+                const method = editingId ? 'PUT' : 'POST';
+                const url = editingId ? `/billing/${editingId}` : '/billing';
+                await apiFetch(url, method, data);
+                
+                showToast(editingId ? 'Invoice updated' : 'Invoice generated', 'success');
+                closeModal();
+                loadBills();
+                e.target.reset();
+            } catch (error) {
+                showToast(error.message || 'Operation failed', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        async function deleteBill(id) {
+            if (await showCustomConfirm('Are you sure you want to permanently void this clinical invoice?')) {
+                try {
+                    await apiFetch(`/billing/${id}`, 'DELETE');
+                    showToast('Invoice voided', 'success');
+                    loadBills();
+                } catch (error) {
+                    showToast(error.message || 'Action failed', 'error');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBills);
+    </script>
+</body>
+</html>

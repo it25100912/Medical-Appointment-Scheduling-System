@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Access | MediSync Pro</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Split Layout */
+        .split-container {
+            display: flex;
+            width: 100vw;
+            min-height: 100vh;
+        }
+
+        .left-panel {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            background: #FFFFFF;
+            padding: 3rem 2rem;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .left-panel-content {
+            max-width: 480px;
+            width: 100%;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            box-sizing: border-box;
+        }
+
+        .right-panel {
+            width: 50%;
+            background: #00539C;
+            background-image: 
+                radial-gradient(at 20% 20%, #00C4EE 0px, transparent 50%),
+                radial-gradient(at 80% 40%, #ff007f 0px, transparent 50%),
+                radial-gradient(at 40% 80%, #7b2cbf 0px, transparent 50%),
+                radial-gradient(at 90% 10%, #00539C 0px, transparent 50%),
+                radial-gradient(at 10% 90%, #00C4EE 0px, transparent 50%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .right-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            backdrop-filter: blur(60px) saturate(180%);
+            opacity: 0.92;
+        }
+
+        .right-panel-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            padding: 3rem;
+            max-width: 480px;
+        }
+
+        .right-panel-content h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .right-panel-content p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        /* Left Panel Form Style */
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 83, 156, 0.15);
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            letter-spacing: -0.5px;
+        }
+
+        .form-container {
+            width: 100%;
+        }
+
+        .form-sub {
+            font-size: 0.95rem;
+            color: #64748B;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Role Selector Tabs */
+        .role-tabs {
+            display: flex;
+            background: #F1F5F9;
+            border-radius: 30px;
+            padding: 4px;
+            margin-bottom: 2rem;
+        }
+
+        .role-tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.65rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #64748B;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .role-tab.active {
+            background: white;
+            color: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(0, 83, 156, 0.08);
+        }
+
+        /* 2-Column Responsive Form Fields Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-full {
+            grid-column: span 2;
+        }
+
+        /* Floating Border Overlap Form Fields */
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            position: absolute;
+            left: 1rem;
+            top: -0.55rem;
+            background: white;
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            z-index: 10;
+        }
+
+        .form-group input, .form-group select {
+            width: 100% !important;
+            padding: 1.1rem 1.25rem !important;
+            border: 1.5px solid #E2E8F0 !important;
+            border-radius: 12px !important;
+            font-size: 0.95rem !important;
+            font-weight: 500 !important;
+            color: var(--text-main) !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            transition: all 0.3s !important;
+        }
+
+        .form-group select {
+            color: var(--text-main) !important;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: calc(100% - 1.25rem) center !important;
+            background-size: 1rem !important;
+        }
+
+        .form-group select option {
+            color: var(--text-main) !important;
+            background: white !important;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 4px rgba(0, 196, 238, 0.15) !important;
+        }
+
+        /* Action Buttons */
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 1.1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(0, 83, 156, 0.15);
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 83, 156, 0.25);
+        }
+
+        /* Social Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1.5px solid #F1F5F9;
+        }
+
+        .divider:not(:empty)::before {
+            margin-right: .75em;
+        }
+
+        .divider:not(:empty)::after {
+            margin-left: .75em;
+        }
+
+        /* Social Button Row */
+        .social-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            background: #F8FAFC;
+            border-color: #CBD5E1;
+            transform: translateY(-2px);
+        }
+
+        .social-btn i {
+            font-size: 1.15rem;
+        }
+
+        .social-btn.fb i { color: #1877F2; }
+        .social-btn.google i { color: #ea4335; }
+        .social-btn.apple i { color: #000000; }
+
+        /* Bottom Text */
+        .footer-link-text {
+            text-align: left;
+            color: #64748B;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 1.5rem;
+        }
+
+        .footer-link-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .footer-link-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .right-panel {
+                display: none;
+            }
+            .left-panel {
+                width: 100%;
+                padding: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="split-container">
+        
+        <!-- Left Panel containing Form -->
+        <div class="left-panel">
+            <div class="left-panel-content">
+                
+                <header class="logo-section">
+                    <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                    <span class="logo-text">MediSync</span>
+                </header>
+
+                <div class="form-container">
+                    <!-- <p class="form-sub">Start your journey</p> -->
+                    <h1 class="form-title">Create your Account</h1>
+
+                    <!-- Role Selection Tabs -->
+                    <div class="role-tabs" id="role-selector">
+                        <div class="role-tab active" data-role="PATIENT">Patient Account</div>
+                        <div class="role-tab" data-role="DOCTOR">Medical Professional</div>
+                    </div>
+
+                    <form id="signup-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Full Legal Name</label>
+                                <input type="text" id="name" placeholder="John Doe" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="email" placeholder="john@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>NIC Number</label>
+                                <input type="text" id="nic" placeholder="199XXXXXXXXX" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Contact Number</label>
+                                <input type="tel" id="phone" placeholder="+94 XX XXX XXXX" required>
+                            </div>
+
+                            <!-- Patient Fields wrapper -->
+                            <div id="patient-fields" style="display: contents;">
+                                <div class="form-group">
+                                    <label>Date of Birth</label>
+                                    <input type="date" id="dob" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Blood Group</label>
+                                    <select id="bloodGroup" required>
+                                        <option value="">Select Group</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Doctor fields (License) -->
+                            <div class="form-group form-full" id="doc-fields" style="display: none;">
+                                <label>Medical License Number</label>
+                                <input type="text" id="license" placeholder="MC-XXXXXX">
+                            </div>
+
+                            <div class="form-group form-full" id="address-field">
+                                <label>Address</label>
+                                <input type="text" id="address" placeholder="Street, City, Country" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="password" placeholder="••••••••" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm Password</label>
+                                <input type="password" id="confirm-password" placeholder="••••••••" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            Submit Registration <i class="fas fa-check-circle"></i>
+                        </button>
+                    </form>
+
+                </div>
+
+                <footer class="footer-link-text">
+                    Already registered? <a href="login.html">Login</a>
+                </footer>
+
+            </div>
+        </div>
+
+        <!-- Right Panel containing Fluid Marble Backdrop -->
+        <div class="right-panel">
+            <div class="right-panel-content">
+                <h2>Clinical Intelligence Infrastructure</h2>
+                <p>Welcome back to the secure clinical portal. Log in to monitor operations, dispatch pharmacies, and orchestrate laboratory appointments.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        let selectedRole = 'PATIENT';
+        
+        document.getElementById('role-selector').addEventListener('click', (e) => {
+            if (e.target.classList.contains('role-tab')) {
+                document.querySelectorAll('.role-tab').forEach(opt => opt.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedRole = e.target.dataset.role;
+
+                // toggle fields
+                const isPatient = selectedRole === 'PATIENT';
+                document.getElementById('doc-fields').style.display = isPatient ? 'none' : 'block';
+                document.getElementById('patient-fields').style.setProperty('display', isPatient ? 'contents' : 'none', 'important');
+                document.getElementById('address-field').style.display = isPatient ? 'block' : 'none';
+
+                // toggle required attributes
+                document.getElementById('dob').required = isPatient;
+                document.getElementById('bloodGroup').required = isPatient;
+                document.getElementById('address').required = isPatient;
+                document.getElementById('license').required = !isPatient;
+            }
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm-password').value;
+
+            if (password !== confirm) {
+                showToast('Passwords do not match!', 'danger');
+                return;
+            }
+
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                nic: document.getElementById('nic').value,
+                phone: document.getElementById('phone').value,
+                password: password,
+                role: selectedRole
+            };
+
+            if (selectedRole === 'PATIENT') {
+                data.dateOfBirth = document.getElementById('dob').value;
+                data.bloodGroup = document.getElementById('bloodGroup').value;
+                data.address = document.getElementById('address').value;
+            }
+
+            if (selectedRole === 'DOCTOR') {
+                data.licenseNumber = document.getElementById('license').value;
+            }
+
+            try {
+                await apiFetch('/auth/register', 'POST', data);
+                sessionStorage.setItem('reg_success', 'true');
+                window.location.href = 'login.html';
+            } catch (error) {
+                showToast(error.message, 'danger');
+            }
+        });
+    </script>
+</body>
+</html>
