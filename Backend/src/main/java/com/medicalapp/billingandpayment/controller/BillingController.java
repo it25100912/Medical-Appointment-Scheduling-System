@@ -3,6 +3,7 @@ package com.medicalapp.billingandpayment.controller;
 import com.medicalapp.billingandpayment.dto.BillingDTO;
 import com.medicalapp.billingandpayment.entity.Billing;
 import com.medicalapp.billingandpayment.service.IBillingService;
+import com.medicalapp.common.util.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-//controller
+
 @RestController
 @RequestMapping("/api/billing")
 @RequiredArgsConstructor
@@ -27,16 +28,38 @@ public class BillingController {
 
     @GetMapping
     public List<BillingDTO> getAllBills() {
+        // Patients can only view their own billing information
+        if (SecurityUtils.isPatient()) {
+            Long patientId = SecurityUtils.getCurrentUserId();
+            return billingService.getBillsByPatient(patientId);
+        }
+        // Admins and doctors can see all bills
         return billingService.getAllBills();
     }
 
     @GetMapping("/{id}")
     public BillingDTO getBillById(@PathVariable Long id) {
-        return billingService.getBillById(id);
+        BillingDTO bill = billingService.getBillById(id);
+        
+        // Patients can only view their own billing information
+        if (SecurityUtils.isPatient()) {
+            Long currentPatientId = SecurityUtils.getCurrentUserId();
+            if (!bill.getPatientId().equals(currentPatientId)) {
+                throw new RuntimeException("Unauthorized: You can only access your own billing information");
+            }
+        }
+        return bill;
     }
 
     @GetMapping("/patient/{patientId}")
     public List<BillingDTO> getBillsByPatient(@PathVariable Long patientId) {
+        // Patients can only view their own billing information
+        if (SecurityUtils.isPatient()) {
+            Long currentPatientId = SecurityUtils.getCurrentUserId();
+            if (!patientId.equals(currentPatientId)) {
+                throw new RuntimeException("Unauthorized: You can only access your own billing information");
+            }
+        }
         return billingService.getBillsByPatient(patientId);
     }
 
