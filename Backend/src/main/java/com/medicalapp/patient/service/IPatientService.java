@@ -3,6 +3,7 @@ package com.medicalapp.patient.service;
 import com.medicalapp.patient.dto.PatientDTO;
 import java.util.List;
 
+// OOP CONCEPT: ABSTRACTION - Interface defines the system operation blueprint, hiding storage/implementation details from controller routes.
 public interface IPatientService {
 
     PatientDTO registerPatient(PatientDTO dto);

@@ -70,6 +70,14 @@ let editingId = null;
 function openOnboardModal() {
     editingId = null;
     document.getElementById('doctor-form').reset();
+    
+    const defaultDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    document.querySelectorAll('input[name="availableDays"]').forEach(cb => {
+        cb.checked = defaultDays.includes(cb.value);
+    });
+
+    document.getElementById('doc-from').value = '09:00';
+    document.getElementById('doc-to').value = '17:00';
     document.getElementById('doc-password').required = true;
     document.getElementById('doctorModal').querySelector('h2').innerText = 'Register New Doctor';
     document.getElementById('doctorModal').querySelector('button[type="submit"]').innerText = 'Register Provider';
@@ -88,6 +96,14 @@ async function editDoctor(id) {
         document.getElementById('doc-license').value = d.licenseNumber || '';
         document.getElementById('doc-exp').value = d.experience || '';
         document.getElementById('doc-fee').value = d.consultationFee || '';
+        
+        const days = (d.availableDays || '').split(/[\s,]+/).filter(day => day.trim().length > 0).map(day => day.toLowerCase());
+        document.querySelectorAll('input[name="availableDays"]').forEach(cb => {
+            cb.checked = days.includes(cb.value.toLowerCase());
+        });
+
+        document.getElementById('doc-from').value = d.availableFrom ? d.availableFrom.substring(0, 5) : '09:00';
+        document.getElementById('doc-to').value = d.availableTo ? d.availableTo.substring(0, 5) : '17:00';
         document.getElementById('doc-password').value = '';
         document.getElementById('doc-password').required = false;
 
@@ -110,6 +126,10 @@ document.getElementById('doctor-form').addEventListener('submit', async (e) => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> processing...';
     btn.disabled = true;
 
+    const selectedDays = Array.from(document.querySelectorAll('input[name="availableDays"]:checked'))
+        .map(cb => cb.value)
+        .join(', ');
+
     const data = {
         name: document.getElementById('doc-name').value,
         email: document.getElementById('doc-email').value,
@@ -118,6 +138,9 @@ document.getElementById('doctor-form').addEventListener('submit', async (e) => {
         licenseNumber: document.getElementById('doc-license').value,
         experience: parseInt(document.getElementById('doc-exp').value) || 0,
         consultationFee: parseFloat(document.getElementById('doc-fee').value) || 0,
+        availableDays: selectedDays,
+        availableFrom: document.getElementById('doc-from').value ? document.getElementById('doc-from').value + ':00' : '09:00:00',
+        availableTo: document.getElementById('doc-to').value ? document.getElementById('doc-to').value + ':00' : '17:00:00',
         password: document.getElementById('doc-password').value,
         doctorType: 'GENERAL'
     };

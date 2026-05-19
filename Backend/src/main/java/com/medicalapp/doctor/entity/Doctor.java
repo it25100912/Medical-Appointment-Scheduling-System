@@ -14,10 +14,10 @@ import java.time.LocalTime;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "sub_doctor_type")
 @EqualsAndHashCode(callSuper = true)
-public abstract class Doctor extends BaseEntity {
+public abstract class Doctor extends BaseEntity { // OOP: Abstraction & Inheritance
 
     @NotBlank(message = "Name is required")
-    private String name;
+    private String name; // OOP: Encapsulation
 
     @Email(message = "Invalid email format")
     @Column(unique = true)
@@ -46,5 +46,5 @@ public abstract class Doctor extends BaseEntity {
         GENERAL, SPECIALIST
     }
 
-    public abstract double calculateConsultationFee();
+    public abstract double calculateConsultationFee(); // OOP: Abstraction
 }
