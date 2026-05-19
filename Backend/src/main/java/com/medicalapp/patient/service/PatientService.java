@@ -30,7 +30,7 @@ public class PatientService implements IPatientService {
     public PatientDTO registerPatient(PatientDTO dto) {
         Patient patient = mapDtoToEntity(dto);
         Patient saved = patientRepository.save(patient);
-
+        
         // Create corresponding User record for authentication
         if (dto.getPassword() != null && !dto.getPassword().isEmpty() && saved.getId() != null) {
             User user = new User();
@@ -43,32 +43,32 @@ public class PatientService implements IPatientService {
             user.setRole(User.Role.PATIENT);
             userRepository.save(user);
         }
-
+        
         return mapEntityToDto(saved);
     }
 
     @Override
     public List<PatientDTO> getAllPatients() {
         List<PatientDTO> list = patientRepository.findAll().stream()
-                .map(this::mapEntityToDto)
-                .collect(Collectors.toList());
+            .map(this::mapEntityToDto)
+            .collect(Collectors.toList());
 
         // Include users from users.txt who are patients but may not exist in patients.txt
         userRepository.findAll().stream()
-                .filter(u -> u.getRole() == com.medicalapp.auth.entity.User.Role.PATIENT)
-                .forEach(u -> {
-                    boolean exists = patientRepository.findById(u.getId()).isPresent() ||
-                            patientRepository.findByEmail(u.getEmail()).isPresent();
-                    if (!exists) {
-                        PatientDTO dto = new PatientDTO();
-                        dto.setId(u.getId());
-                        dto.setName(u.getName());
-                        dto.setEmail(u.getEmail());
-                        dto.setPhone(u.getPhone());
-                        dto.setNic(u.getNic());
-                        list.add(dto);
-                    }
-                });
+            .filter(u -> u.getRole() == com.medicalapp.auth.entity.User.Role.PATIENT)
+            .forEach(u -> {
+                boolean exists = patientRepository.findById(u.getId()).isPresent() ||
+                    patientRepository.findByEmail(u.getEmail()).isPresent();
+                if (!exists) {
+                PatientDTO dto = new PatientDTO();
+                dto.setId(u.getId());
+                dto.setName(u.getName());
+                dto.setEmail(u.getEmail());
+                dto.setPhone(u.getPhone());
+                dto.setNic(u.getNic());
+                list.add(dto);
+                }
+            });
 
         return list;
     }
@@ -96,37 +96,37 @@ public class PatientService implements IPatientService {
     @Override
     public PatientDTO getPatientByNic(String nic) {
         return patientRepository.findByNic(nic)
-                .map(this::mapEntityToDto)
-                .orElseGet(() -> userRepository.findAll().stream()
-                        .filter(u -> u.getNic() != null && u.getNic().equals(nic) && u.getRole() == User.Role.PATIENT)
-                        .findFirst()
-                        .map(u -> {
-                            PatientDTO dto = new PatientDTO();
-                            dto.setId(u.getId());
-                            dto.setName(u.getName());
-                            dto.setEmail(u.getEmail());
-                            dto.setPhone(u.getPhone());
-                            dto.setNic(u.getNic());
-                            return dto;
-                        }).orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
+            .map(this::mapEntityToDto)
+            .orElseGet(() -> userRepository.findAll().stream()
+                .filter(u -> u.getNic() != null && u.getNic().equals(nic) && u.getRole() == User.Role.PATIENT)
+                .findFirst()
+                .map(u -> {
+                    PatientDTO dto = new PatientDTO();
+                    dto.setId(u.getId());
+                    dto.setName(u.getName());
+                    dto.setEmail(u.getEmail());
+                    dto.setPhone(u.getPhone());
+                    dto.setNic(u.getNic());
+                    return dto;
+                }).orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
     }
 
     @Override
     public PatientDTO getPatientByPhone(String phone) {
         return patientRepository.findByPhone(phone)
-                .map(this::mapEntityToDto)
-                .orElseGet(() -> userRepository.findAll().stream()
-                        .filter(u -> u.getPhone() != null && u.getPhone().equals(phone) && u.getRole() == User.Role.PATIENT)
-                        .findFirst()
-                        .map(u -> {
-                            PatientDTO dto = new PatientDTO();
-                            dto.setId(u.getId());
-                            dto.setName(u.getName());
-                            dto.setEmail(u.getEmail());
-                            dto.setPhone(u.getPhone());
-                            dto.setNic(u.getNic());
-                            return dto;
-                        }).orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
+            .map(this::mapEntityToDto)
+            .orElseGet(() -> userRepository.findAll().stream()
+                .filter(u -> u.getPhone() != null && u.getPhone().equals(phone) && u.getRole() == User.Role.PATIENT)
+                .findFirst()
+                .map(u -> {
+                    PatientDTO dto = new PatientDTO();
+                    dto.setId(u.getId());
+                    dto.setName(u.getName());
+                    dto.setEmail(u.getEmail());
+                    dto.setPhone(u.getPhone());
+                    dto.setNic(u.getNic());
+                    return dto;
+                }).orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
     }
 
     @Override
@@ -209,7 +209,7 @@ public class PatientService implements IPatientService {
         } else {
             p = new OutPatient();
         }
-
+        
         p.setName(dto.getName());
         p.setEmail(dto.getEmail());
         p.setPhone(dto.getPhone());
@@ -219,12 +219,12 @@ public class PatientService implements IPatientService {
         p.setDateOfBirth(dto.getDateOfBirth());
         p.setMedicalHistory(dto.getMedicalHistory());
         p.setPatientType(dto.getPatientType());
-
+        
         // Hash password if provided
         if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
             p.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-
+        
         return p;
     }
 
@@ -242,7 +242,7 @@ public class PatientService implements IPatientService {
         dto.setPatientType(p.getPatientType());
 
         // Wards removed: nothing to set for ward info
-
+        
         return dto;
     }
 }
