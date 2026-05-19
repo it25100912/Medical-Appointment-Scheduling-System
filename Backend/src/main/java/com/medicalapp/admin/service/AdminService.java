@@ -51,9 +51,6 @@ public class AdminService implements IAdminService {
         admin.setRole(dto.getRole());
 
         // Save admin to database
-        Admin saved = adminRepository.save(admin);
-
-        // Create corresponding user record in users.txt
         if (saved.getId() != null) {
 
             User user = new User();
@@ -71,7 +68,6 @@ public class AdminService implements IAdminService {
     }
 
 
-     // Retrieve all admins
 
     @Override
     public List<AdminResponseDTO> getAllAdmins() {
