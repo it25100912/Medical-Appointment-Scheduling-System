@@ -14,6 +14,14 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
 
     List<MedicalRecord> findByDoctor_Id(Long doctorId);
 
+    default List<MedicalRecord> findByPatientId(Long patientId) {
+        return findByPatient_Id(patientId);
+    }
+
+    default List<MedicalRecord> findByDoctorId(Long doctorId) {
+        return findByDoctor_Id(doctorId);
+    }
+
     List<MedicalRecord> findByRecordType(MedicalRecord.RecordType type);
 
     List<MedicalRecord> findByRecordDateBetween(LocalDate from, LocalDate to);
