@@ -1,8 +1,6 @@
 package com.medicalapp.patient.service;
 
 import com.medicalapp.patient.dto.PatientDTO;
-import com.medicalapp.patient.entity.InPatient;
-import com.medicalapp.patient.entity.OutPatient;
 import com.medicalapp.patient.entity.Patient;
 import com.medicalapp.patient.repository.FilePatientRepository;
 import com.medicalapp.auth.entity.User;
@@ -20,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+// OOP CONCEPT: POLYMORPHISM - Concrete service implementing the IPatientService interface, resolving interface methods dynamically at runtime.
 public class PatientService implements IPatientService {
     private final FilePatientRepository patientRepository;
     private final FileUserRepository userRepository;
@@ -141,7 +140,7 @@ public class PatientService implements IPatientService {
             }
 
             // Start with user data, then overlay DTO fields
-            Patient p = new OutPatient();
+            Patient p = new Patient();
             p.setId(user.getId());
             p.setName(user.getName());
             p.setEmail(user.getEmail());
@@ -161,12 +160,18 @@ public class PatientService implements IPatientService {
             // Handle password update from DTO
             if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
                 p.setPassword(passwordEncoder.encode(dto.getPassword()));
-                // sync to users.txt
-                user.setPassword(passwordEncoder.encode(dto.getPassword()));
-                userRepository.save(user);
             }
 
             Patient saved = patientRepository.save(p);
+            
+            // Sync everything back to users.txt
+            user.setName(saved.getName());
+            user.setEmail(saved.getEmail());
+            user.setPhone(saved.getPhone());
+            user.setNic(saved.getNic());
+            user.setPassword(saved.getPassword());
+            userRepository.save(user);
+            
             return mapEntityToDto(saved);
         }
 
@@ -183,14 +188,23 @@ public class PatientService implements IPatientService {
         // Update password if provided
         if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
             existing.setPassword(passwordEncoder.encode(dto.getPassword()));
-            // Also update User record password
-            userRepository.findByEmail(existing.getEmail()).ifPresent(user -> {
-                user.setPassword(passwordEncoder.encode(dto.getPassword()));
-                userRepository.save(user);
-            });
         }
 
-        return mapEntityToDto(patientRepository.save(existing));
+        Patient saved = patientRepository.save(existing);
+
+        // Also update corresponding User record
+        userRepository.findById(id).ifPresent(user -> {
+            user.setEmail(saved.getEmail());
+            user.setName(saved.getName());
+            user.setPhone(saved.getPhone());
+            user.setNic(saved.getNic());
+            if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
+                user.setPassword(saved.getPassword());
+            }
+            userRepository.save(user);
+        });
+
+        return mapEntityToDto(saved);
     }
 
     @Override
@@ -203,12 +217,7 @@ public class PatientService implements IPatientService {
     }
 
     private Patient mapDtoToEntity(PatientDTO dto) {
-        Patient p;
-        if (dto.getPatientType() == Patient.PatientType.INPATIENT) {
-            p = new InPatient();
-        } else {
-            p = new OutPatient();
-        }
+        Patient p = new Patient();
         
         p.setName(dto.getName());
         p.setEmail(dto.getEmail());
