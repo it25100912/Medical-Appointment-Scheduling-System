@@ -67,7 +67,7 @@ public class AdminService implements IAdminService {
     public AdminResponseDTO updateAdmin(Long id, AdminRequestDTO dto) {
         Admin existing = adminRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
-
+        
         existing.setUsername(dto.getUsername());
         existing.setEmail(dto.getEmail());
         existing.setRole(dto.getRole());
