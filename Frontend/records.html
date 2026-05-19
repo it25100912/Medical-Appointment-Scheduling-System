@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Records | MediSync Pro</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text"><h2>MediSync</h2><p>Pro System</p></div>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+            <a href="patients.html" class="nav-item"><i class="fas fa-users"></i> <span>Patients</span></a>
+            <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i> <span>Doctors</span></a>
+            
+            <a href="appointments.html" class="nav-item"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a>
+            <a href="records.html" class="nav-item active"><i class="fas fa-file-medical"></i> <span>Medical Records</span></a>
+            <a href="billing.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> <span>Billing</span></a>
+            <a href="admin.html" class="nav-item"><i class="fas fa-user-shield"></i> <span>Admin</span></a>
+            <a href="#" class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+        </nav>
+    </aside>
+
+    <div class="content-wrapper">
+        <header class="top-header">
+            <div class="search-container">
+                <input type="text" id="system-search" placeholder="Search clinical cloud (Patient, Diagnosis, Record)...">
+            </div>
+            <div class="header-actions">
+                <div class="icon-btn notification-bell">
+                    <i class="far fa-bell"></i>
+                    <span class="notification-badge"></span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p class="user-name">Administrator</p>
+                        <p class="user-role">System Level 4</p>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563eb&color=white" class="user-avatar" alt="Admin">
+                </div>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <div class="record-mgmt-header">
+                <div>
+                    <h1>Medical Records</h1>
+                    <p style="color: var(--text-muted); font-weight: 500;">Comprehensive patient diagnostic history and prescriptions.</p>
+                </div>
+                <button class="btn-add-premium" onclick="openRecordModal()">
+                    <i class="fas fa-plus"></i> New Record
+                </button>
+            </div>
+
+            <div class="roster-card">
+                <table class="roster-table">
+                    <thead>
+                        <tr>
+                            <th class="col-id">Record ID</th>
+                            <th class="col-patient">Patient</th>
+                            <th class="col-contact">Diagnosis</th>
+                            <th class="col-contact">Prescription</th>
+                            <th class="col-status">Date</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="record-roster-body">
+                        <!-- Data injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Record Modal -->
+    <div id="recordModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <h2 style="margin-bottom: 2rem;">Add Clinical Record</h2>
+            <form id="record-form">
+                <div class="flex-col gap-4">
+                    <div>
+                        <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block; padding-left: 0.5rem;">Subject Patient</label>
+                        <select id="rec-patient" required style="width: 100%; padding: 1rem; border: 2px solid #f1f5f9; border-radius: 12px; background: white;">
+                            <option value="">Choose a Patient...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block; padding-left: 0.5rem;">Treating Physician</label>
+                        <select id="rec-doctor" required style="width: 100%; padding: 1rem; border: 2px solid #f1f5f9; border-radius: 12px; background: white;">
+                            <option value="">Choose a Doctor...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block; padding-left: 0.5rem;">Medical Diagnosis</label>
+                        <input type="text" id="rec-diag" placeholder="Enter primary diagnosis (e.g. Chronic Hypertension)" required style="width: 100%; padding: 1rem; border: 2px solid #f1f5f9; border-radius: 12px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block; padding-left: 0.5rem;">Prescription Details</label>
+                        <textarea id="rec-presc" placeholder="Medicine name, dosage, and frequency..." required style="width: 100%; padding: 1rem; border: 2px solid #f1f5f9; border-radius: 12px; height: 80px;"></textarea>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block; padding-left: 0.5rem;">Clinical Observation Notes</label>
+                        <textarea id="rec-notes" placeholder="Additional observations or clinical summary..." style="width: 100%; padding: 1rem; border: 2px solid #f1f5f9; border-radius: 12px; height: 80px;"></textarea>
+                    </div>
+                </div>
+                <div class="flex-row mt-8 justify-between" style="display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem;">
+                    <button type="button" class="btn-premium-outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-premium-primary" style="flex: 1;">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        const isPatient = user && user.role === 'PATIENT';
+        const isDoctor = user && user.role === 'DOCTOR';
+
+        window.allRecords = [];
+        window.allPatients = [];
+        window.allDoctors = [];
+
+        async function loadRecords() {
+            try {
+                const [records, patients, doctors, appointments] = await Promise.all([
+                    apiFetch('/medical-records'),
+                    apiFetch('/patients'),
+                    apiFetch('/doctors'),
+                    apiFetch('/appointments')
+                ]);
+
+                window.allRecords = records.map(r => ({
+                    ...r,
+                    patientName: patients.find(p => p.id == r.patientId)?.name || 'Unknown'
+                }));
+                if (isDoctor) {
+                    window.allRecords = window.allRecords.filter(r => r.doctorId == user.id);
+                }
+                window.allPatients = patients;
+                window.allDoctors = doctors;
+
+                if (isPatient) {
+                    // Hide the add new record button
+                    const addBtn = document.querySelector('.btn-add-premium');
+                    if (addBtn) addBtn.style.display = 'none';
+
+                    // Update subheader
+                    const subheader = document.querySelector('.record-mgmt-header p');
+                    if (subheader) subheader.innerText = 'Your complete clinical diagnostic history and prescriptions.';
+
+                    // Change roster table headers
+                    const thead = document.querySelector('.roster-table thead');
+                    if (thead) {
+                        thead.innerHTML = `
+                            <tr>
+                                <th class="col-id">Record ID</th>
+                                <th class="col-patient">Physician</th>
+                                <th class="col-contact">Diagnosis</th>
+                                <th class="col-contact">Prescription</th>
+                                <th class="col-status">Date</th>
+                            </tr>
+                        `;
+                    }
+                }
+
+                let filteredPatients = patients;
+                if (isDoctor) {
+                    const myPatientIds = new Set(appointments.filter(a => a.doctorId == user.id).map(a => a.patientId));
+                    filteredPatients = patients.filter(p => myPatientIds.has(p.id));
+                }
+
+                // Populate selects
+                const pSelect = document.getElementById('rec-patient');
+                pSelect.innerHTML = '<option value="">Select Patient</option>' + filteredPatients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+                const dSelect = document.getElementById('rec-doctor');
+                dSelect.innerHTML = '<option value="">Select Doctor</option>' + doctors.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+                if (isDoctor) {
+                    dSelect.value = user.id;
+                    dSelect.disabled = true;
+                }
+
+                renderRecords();
+            } catch (error) {
+                showToast('Failed to sync clinical telemetry', 'error');
+            }
+        }
+
+        function renderRecords() {
+            const tbody = document.getElementById('record-roster-body');
+            const searchInput = document.getElementById('system-search');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+
+            const filtered = window.allRecords.filter(r => {
+                const docName = (window.allDoctors.find(d => d.id == r.doctorId)?.name || '').toLowerCase();
+                return (r.patientName || '').toLowerCase().includes(searchTerm) ||
+                       docName.includes(searchTerm) ||
+                       (r.diagnosis || '').toLowerCase().includes(searchTerm) ||
+                       (r.medicineName || '').toLowerCase().includes(searchTerm);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">No clinical telemetry matches "${searchTerm}"</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(r => {
+                const doc = window.allDoctors.find(d => d.id == r.doctorId)?.name || 'Unknown Doctor';
+                if (isPatient) {
+                    return `
+                        <tr>
+                            <td><span style="font-weight: 700;">#REC-${r.id.toString().slice(-4)}</span></td>
+                            <td><span style="font-weight: 800; color: var(--text-main);">Dr. ${doc}</span></td>
+                            <td><span class="diagnosis-badge">${r.diagnosis}</span></td>
+                            <td><span class="medicine-tag">${r.medicineName || 'N/A'}</span></td>
+                            <td><span class="date-cell">${formatDate(r.recordDate)}</span></td>
+                        </tr>
+                    `;
+                } else {
+                    return `
+                        <tr>
+                            <td><span style="font-weight: 700;">#REC-${r.id.toString().slice(-4)}</span></td>
+                            <td><span style="font-weight: 800; color: var(--text-main);">${r.patientName}</span></td>
+                            <td><span class="diagnosis-badge">${r.diagnosis}</span></td>
+                            <td><span class="medicine-tag">${r.medicineName || 'N/A'}</span></td>
+                            <td><span class="date-cell">${formatDate(r.recordDate)}</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action-light" onclick="editRecord(${r.id})"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-action-light delete" onclick="deleteRecord(${r.id})"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }).join('');
+        }
+
+        document.getElementById('system-search')?.addEventListener('input', renderRecords);
+
+        let editingId = null;
+
+        function openRecordModal() {
+            editingId = null;
+            document.getElementById('record-form').reset();
+            if (isDoctor) {
+                document.getElementById('rec-doctor').value = user.id;
+                document.getElementById('rec-doctor').disabled = true;
+            }
+            document.getElementById('recordModal').querySelector('h2').innerText = 'Add Clinical Record';
+            document.getElementById('recordModal').querySelector('button[type="submit"]').innerText = 'Save Record';
+            document.getElementById('recordModal').classList.add('active');
+        }
+
+        async function editRecord(id) {
+            try {
+                const r = await apiFetch(`/medical-records/${id}`);
+                editingId = id;
+                
+                document.getElementById('rec-patient').value = r.patientId;
+                document.getElementById('rec-doctor').value = r.doctorId;
+                if (isDoctor) {
+                    document.getElementById('rec-doctor').disabled = true;
+                }
+                document.getElementById('rec-diag').value = r.diagnosis;
+                document.getElementById('rec-presc').value = r.medicineName;
+                document.getElementById('rec-notes').value = r.summary;
+
+                document.getElementById('recordModal').querySelector('h2').innerText = 'Update Clinical Record';
+                document.getElementById('recordModal').querySelector('button[type="submit"]').innerText = 'Save Changes';
+                document.getElementById('recordModal').classList.add('active');
+            } catch (error) {
+                showToast('Failed to load record details', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('recordModal').classList.remove('active');
+        }
+
+        document.getElementById('record-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            const data = {
+                patientId: parseInt(document.getElementById('rec-patient').value),
+                doctorId: parseInt(document.getElementById('rec-doctor').value),
+                diagnosis: document.getElementById('rec-diag').value,
+                medicineName: document.getElementById('rec-presc').value,
+                summary: document.getElementById('rec-notes').value,
+                recordType: 'PRESCRIPTION'
+            };
+
+            if (!editingId) {
+                data.recordDate = new Date().toISOString().split('T')[0];
+            }
+
+            try {
+                const method = editingId ? 'PUT' : 'POST';
+                const url = editingId ? `/medical-records/${editingId}` : '/medical-records';
+                
+                await apiFetch(url, method, data);
+                showToast(editingId ? 'Record updated' : 'Record saved', 'success');
+                closeModal();
+                loadRecords();
+                e.target.reset();
+            } catch (error) {
+                showToast(error.message || 'Operation failed', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        async function deleteRecord(id) {
+            if (await showCustomConfirm('Are you sure you want to delete this clinical record?')) {
+                try {
+                    await apiFetch(`/medical-records/${id}`, 'DELETE');
+                    showToast('Record deleted', 'success');
+                    loadRecords();
+                } catch (error) {
+                    showToast(error.message || 'Deletion failed', 'error');
+                }
+            }
+        }
+
+        document.getElementById('system-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#record-roster-body tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', loadRecords);
+    </script>
+</body>
+</html>

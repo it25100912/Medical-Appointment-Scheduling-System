@@ -12,25 +12,20 @@ import java.util.stream.Collectors;
 
 @Repository
 public class FileAppointmentRepository {
-   
-    //Utility class used to read appointment data from appointments.txt
     private final FileStorageUtil<Appointment> storage = new FileStorageUtil<>("appointments.txt");
 
-    // Get all appointments from file
     public List<Appointment> findAll() {
         return storage.readFromFile(this::mapToAppointment);
     }
 
-     // Find appointment by ID
     public Optional<Appointment> findById(Long id) {
         return findAll().stream().filter(a -> a.getId().equals(id)).findFirst();
     }
 
-    // Check whether appointment exists by ID
     public boolean existsById(Long id) {
         return findById(id).isPresent();
     }
-    // Save new appointment or update existing appointment
+
     public Appointment save(Appointment appointment) {
         List<Appointment> appointments = findAll();
         if (appointment.getId() == null) {
@@ -41,13 +36,10 @@ public class FileAppointmentRepository {
                     .map(a -> a.getId().equals(appointment.getId()) ? appointment : a)
                     .collect(Collectors.toList());
         }
-
-         // Write updated list back to file
         storage.writeToFile(appointments, this::mapToString);
         return appointment;
     }
 
-    // Delete appointment by ID
     public void deleteById(Long id) {
         List<Appointment> appointments = findAll().stream()
                 .filter(a -> !a.getId().equals(id))
@@ -55,20 +47,18 @@ public class FileAppointmentRepository {
         storage.writeToFile(appointments, this::mapToString);
     }
 
-        // Find appointments by patient ID
     public List<Appointment> findByPatientId(Long patientId) {
         return findAll().stream()
                 .filter(a -> a.getPatientId() != null && a.getPatientId().equals(patientId))
                 .collect(Collectors.toList());
     }
 
-    // Find appointments by doctor ID
     public List<Appointment> findByDoctorId(Long doctorId) {
         return findAll().stream()
                 .filter(a -> a.getDoctorId() != null && a.getDoctorId().equals(doctorId))
                 .collect(Collectors.toList());
     }
-    // Convert Appointment object into String format for saving in file
+
     private String mapToString(Appointment a) {
         return String.format("%d,%s,%s,%s,%s,%s,%s",
                 a.getId(),
@@ -80,19 +70,14 @@ public class FileAppointmentRepository {
                 a.getStatus() != null ? a.getStatus().toString() : "PENDING");
     }
 
-    // Clean text before saving to file
-    // Removes commas and line breaks to avoid file format issues
     private String clean(String input, String def) {
         if (input == null || input.trim().isEmpty()) return def;
         return input.replace(",", " ").replace("\n", " ").replace("\r", " ").trim();
     }
 
-    // Convert a file line into an Appointment object
     private Appointment mapToAppointment(String line) {
         String[] parts = line.split(",");
         Appointment a = new Appointment();
-
-         // If data is too short, return null
         if (parts.length < 2) return null;
 
         try {
@@ -106,16 +91,11 @@ public class FileAppointmentRepository {
                 try {
                     a.setStatus(Appointment.AppointmentStatus.valueOf(parts[6]));
                 } catch (Exception e) {
-                    
-                     // Default status if invalid value found
-
                     a.setStatus(Appointment.AppointmentStatus.PENDING);
                 }
             }
             return a;
         } catch (Exception e) {
-
-             // Return null if parsing fails
             return null;
         }
     }

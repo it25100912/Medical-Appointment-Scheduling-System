@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
 public class AppointmentConflictException extends RuntimeException {
-
-    // Constructor to pass custom error message when appointment conflict occurs
     public AppointmentConflictException(String message) {
         super(message);
     }

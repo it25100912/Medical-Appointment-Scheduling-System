@@ -79,8 +79,6 @@ public class AppointmentService implements IAppointmentService {
 
     @Override
     public AppointmentDTO rescheduleAppointment(Long id, java.time.LocalDate newDate, java.time.LocalTime newTime) {
-        
-        // Find appointment first
         Appointment app = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         app.setAppointmentDate(newDate);
@@ -92,8 +90,6 @@ public class AppointmentService implements IAppointmentService {
     public AppointmentDTO cancelAppointment(Long id) {
         Appointment app = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
-
-        // Mark appointment as cancelled
         app.setStatus(Appointment.AppointmentStatus.CANCELLED);
         return mapEntityToDto(appointmentRepository.save(app));
     }
@@ -102,8 +98,6 @@ public class AppointmentService implements IAppointmentService {
     public AppointmentDTO completeAppointment(Long id) {
         Appointment app = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
-
-         // Mark appointment as completed
         app.setStatus(Appointment.AppointmentStatus.COMPLETED);
         return mapEntityToDto(appointmentRepository.save(app));
     }
@@ -113,21 +107,16 @@ public class AppointmentService implements IAppointmentService {
         Appointment app = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
         
-         // Update patient details if provided
         if (dto.getPatientId() != null) {
             app.setPatientId(dto.getPatientId());
             app.setPatient(patientRepository.findById(dto.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
         }
-
-         // Update doctor details if provided
         if (dto.getDoctorId() != null) {
             app.setDoctorId(dto.getDoctorId());
             app.setDoctor(doctorRepository.findById(dto.getDoctorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found")));
         }
-
-        // Update remaining fields if provided
         if (dto.getAppointmentDate() != null) app.setAppointmentDate(dto.getAppointmentDate());
         if (dto.getAppointmentTime() != null) app.setAppointmentTime(dto.getAppointmentTime());
         if (dto.getReason() != null) app.setReason(dto.getReason());
@@ -141,7 +130,6 @@ public class AppointmentService implements IAppointmentService {
         appointmentRepository.deleteById(id);
     }
 
-    // Convert DTO into Entity
     private Appointment mapDtoToEntity(AppointmentDTO dto) {
         Appointment app = new Appointment();
         if (dto.getPatientId() != null) {
@@ -161,7 +149,6 @@ public class AppointmentService implements IAppointmentService {
         return app;
     }
 
-    // Convert Entity into DTO
     private AppointmentDTO mapEntityToDto(Appointment app) {
         AppointmentDTO dto = new AppointmentDTO();
         dto.setId(app.getId());
