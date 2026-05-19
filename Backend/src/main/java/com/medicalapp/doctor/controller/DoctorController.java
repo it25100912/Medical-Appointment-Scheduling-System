@@ -20,11 +20,13 @@ public class DoctorController {
 
     private final IDoctorService doctorService;
 
+     // Add a new doctor
     @PostMapping
     public ResponseEntity<DoctorDTO> addDoctor(@Valid @RequestBody DoctorDTO dto) {
         return new ResponseEntity<>(doctorService.addDoctor(dto), HttpStatus.CREATED);
     }
 
+    // Retrieve all doctors
     @GetMapping
     public List<DoctorDTO> getAllDoctors() {
         return doctorService.getAllDoctors();
@@ -55,6 +57,7 @@ public class DoctorController {
         return doctorService.getDoctorsByAvailableDay(day);
     }
 
+     //Calculate consultation fee for a doctor
     @GetMapping("/{id}/fee")
     public Double getCalculatedFee(@PathVariable Long id) {
         return doctorService.getCalculatedFee(id);
