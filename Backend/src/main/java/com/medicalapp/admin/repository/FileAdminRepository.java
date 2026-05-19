@@ -8,44 +8,76 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+ // Repository class for handling Admin file storage operations
+
 @Repository
 public class FileAdminRepository {
+
+    // File storage utility object for storing admin data
     private final FileStorageUtil<Admin> storage = new FileStorageUtil<>("admins.txt");
+
+
+     // Retrieve all admins from file
 
     public List<Admin> findAll() {
         return storage.readFromFile(this::mapToAdmin);
     }
 
+
+     // Find admin by ID
+
     public Optional<Admin> findById(Long id) {
         return findAll().stream().filter(a -> a.getId().equals(id)).findFirst();
     }
+
+
+     // Check whether admin exists by ID
 
     public boolean existsById(Long id) {
         return findById(id).isPresent();
     }
 
+
+     // Save or update admin details
+
     public Admin save(Admin admin) {
+
         List<Admin> admins = findAll();
+
+        // Create new admin if ID is null
         if (admin.getId() == null) {
             admin.setId(System.currentTimeMillis());
             admins.add(admin);
         } else {
+
+            // Update existing admin
             admins = admins.stream()
                     .map(a -> a.getId().equals(admin.getId()) ? admin : a)
                     .collect(Collectors.toList());
         }
+
         storage.writeToFile(admins, this::mapToString);
         return admin;
     }
 
+
+     // Delete admin by ID
+
     public void deleteById(Long id) {
+
         List<Admin> admins = findAll().stream()
                 .filter(a -> !a.getId().equals(id))
                 .collect(Collectors.toList());
+
         storage.writeToFile(admins, this::mapToString);
     }
 
+
+     // Convert Admin object into String format for file storage
+
     private String mapToString(Admin a) {
+
         return String.format("%d,%s,%s,%s,%s",
                 a.getId(),
                 clean(a.getUsername(), "Unknown"),
@@ -54,33 +86,65 @@ public class FileAdminRepository {
                 clean(a.getPassword(), "pass123"));
     }
 
+
+     // Clean invalid characters from strings
+
     private String clean(String input, String def) {
-        if (input == null || input.trim().isEmpty()) return def;
-        return input.replace(",", " ").replace("\n", " ").replace("\r", " ").trim();
+
+        if (input == null || input.trim().isEmpty()) {
+            return def;
+        }
+
+        return input.replace(",", " ")
+                .replace("\n", " ")
+                .replace("\r", " ")
+                .trim();
     }
 
+
+     // Convert file line into Admin object
+
     private Admin mapToAdmin(String line) {
+
         String[] parts = line.split(",");
         Admin a = new Admin();
-        if (parts.length < 2) return null;
+
+        if (parts.length < 2) {
+            return null;
+        }
 
         try {
+
+            // Set admin ID
             a.setId(Long.parseLong(parts[0]));
+
+            // Set username
             a.setUsername(parts[1]);
-            if (parts.length > 2 && !"N/A".equals(parts[2])) a.setEmail(parts[2]);
+
+            // Set email if available
+            if (parts.length > 2 && !"N/A".equals(parts[2])) {
+                a.setEmail(parts[2]);
+            }
+
+            // Set role if available
             if (parts.length > 3 && !"N/A".equals(parts[3])) {
+
                 try {
                     a.setRole(Admin.AdminRole.valueOf(parts[3]));
                 } catch (Exception e) {
                     a.setRole(Admin.AdminRole.ADMIN);
                 }
             }
-            if (parts.length > 4) a.setPassword(parts[4]);
+
+            // Set password if available
+            if (parts.length > 4) {
+                a.setPassword(parts[4]);
+            }
+
             return a;
+
         } catch (Exception e) {
             return null;
         }
     }
 }
-
-
