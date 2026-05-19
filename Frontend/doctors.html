@@ -6,6 +6,13 @@
     <title>Doctor Management | MediSync Pro</title>
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .day-checkbox-label:has(input:checked) {
+            background: #eff6ff !important;
+            border-color: #2563eb !important;
+            color: #2563eb !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -96,7 +103,7 @@
                     </div>
                     <div class="form-group">
                         <label>Professional Email</label>
-                        <input type="email" id="doc-email" placeholder="doctor@medisync.pro" required>
+                        <input type="email" id="doc-email" placeholder="doctor@example.com" required>
                     </div>
                     <div class="form-group">
                         <label>Contact Number</label>
@@ -122,6 +129,40 @@
                     <div class="form-group form-full">
                         <label>OPD Consultation Fee (LKR)</label>
                         <input type="number" id="doc-fee" placeholder="1500.00" step="0.01" required>
+                    </div>
+                    <div class="form-group form-full">
+                        <label style="margin-bottom: 0.75rem; display: block;">Available Days</label>
+                        <div class="days-checkbox-group" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                            <label class="day-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; transition: all 0.2s;">
+                                <input type="checkbox" name="availableDays" value="Monday" style="width: auto !important; height: auto !important; margin: 0 !important; cursor: pointer; display: inline-block !important;"> Monday
+                            </label>
+                            <label class="day-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; transition: all 0.2s;">
+                                <input type="checkbox" name="availableDays" value="Tuesday" style="width: auto !important; height: auto !important; margin: 0 !important; cursor: pointer; display: inline-block !important;"> Tuesday
+                            </label>
+                            <label class="day-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; transition: all 0.2s;">
+                                <input type="checkbox" name="availableDays" value="Wednesday" style="width: auto !important; height: auto !important; margin: 0 !important; cursor: pointer; display: inline-block !important;"> Wednesday
+                            </label>
+                            <label class="day-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; transition: all 0.2s;">
+                                <input type="checkbox" name="availableDays" value="Thursday" style="width: auto !important; height: auto !important; margin: 0 !important; cursor: pointer; display: inline-block !important;"> Thursday
+                            </label>
+                            <label class="day-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; transition: all 0.2s;">
+                                <input type="checkbox" name="availableDays" value="Friday" style="width: auto !important; height: auto !important; margin: 0 !important; cursor: pointer; display: inline-block !important;"> Friday
+                            </label>
+                            <label class="day-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; transition: all 0.2s;">
+                                <input type="checkbox" name="availableDays" value="Saturday" style="width: auto !important; height: auto !important; margin: 0 !important; cursor: pointer; display: inline-block !important;"> Saturday
+                            </label>
+                            <label class="day-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; transition: all 0.2s;">
+                                <input type="checkbox" name="availableDays" value="Sunday" style="width: auto !important; height: auto !important; margin: 0 !important; cursor: pointer; display: inline-block !important;"> Sunday
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Available From Time</label>
+                        <input type="time" id="doc-from" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Available To Time</label>
+                        <input type="time" id="doc-to" required>
                     </div>
                     <div class="form-group form-full">
                         <label>Account Password</label>

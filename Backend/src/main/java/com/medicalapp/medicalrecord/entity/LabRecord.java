@@ -7,17 +7,16 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
-@DiscriminatorValue("LAB_RESULT") //Used in inheritance to identify this subclass type
+@DiscriminatorValue("LAB_RESULT")
 @EqualsAndHashCode(callSuper = true)
-public class LabRecord extends MedicalRecord {
+public class LabRecord extends MedicalRecord { // OOP: Inheritance
 
-    private String testName;
+    private String testName; // OOP: Encapsulation
     private String testResult;
     private String referenceRange;
 
-     //Overrides parent method to return format lab result summary
     @Override
-    public String getRecordSummary() {
+    public String getRecordSummary() { // OOP: Polymorphism
         return String.format("Lab Result | Test: %s | Result: %s (Normal range: %s)",
                 testName, testResult, referenceRange);
     }

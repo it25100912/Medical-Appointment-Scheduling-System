@@ -9,10 +9,10 @@ import lombok.EqualsAndHashCode;
 @Entity
 @DiscriminatorValue("GENERAL")
 @EqualsAndHashCode(callSuper = true)
-public class GeneralDoctor extends Doctor {
+public class GeneralDoctor extends Doctor { // OOP: Inheritance
 
     @Override
-    public double calculateConsultationFee() {
+    public double calculateConsultationFee() { // OOP: Polymorphism
         return this.getConsultationFee();
     }
 }

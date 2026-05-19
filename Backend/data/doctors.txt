@@ -1,1 +1,2 @@
-1779143040875,Samantha Bandara,saman@gmail.com,0771234567,Cardiology,MC-1234,5,3000.0,Monday Tuesday Wednesday Thursday Friday Saturday Sunday,N/A,N/A,$2a$10$dfBxHizY3qOhfnVAZYCSA.aXlgf1Z16.6Kpe3cEMmE8E2mj.9hxPS
+1779213861868,Samantha Bandara,saman@gmail.com,07712345678,Orthopedics,LIC-99999,12,2000.0,Monday  Sunday,09:00,17:00,$2a$10$Do7YOJx7xrKrHTwnbsjbbOnYxUG90D1pWHHnQRuFRqJO4RXMnPeFK
+1779213924130,Nimal Herath,nimal@gmail.com,07712345678,Neurology,SLMC-X123H,7,5000.0,Monday  Tuesday  Wednesday  Thursday  Friday,09:00,15:00,$2a$10$19PHMpoRBBD7hp.l/b1c/.WP.BQB9w7BaRzJxS0k076T92TQAHrQy

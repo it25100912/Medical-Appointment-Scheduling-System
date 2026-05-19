@@ -9,12 +9,12 @@ import lombok.EqualsAndHashCode;
 @Entity
 @DiscriminatorValue("SPECIALIST")
 @EqualsAndHashCode(callSuper = true)
-public class SpecialistDoctor extends Doctor {
+public class SpecialistDoctor extends Doctor { // OOP: Inheritance
 
-    private String specialistArea;
+    private String specialistArea; // OOP: Encapsulation
 
     @Override
-    public double calculateConsultationFee() {
+    public double calculateConsultationFee() { // OOP: Polymorphism
         return this.getConsultationFee() * 1.5;
     }
 }

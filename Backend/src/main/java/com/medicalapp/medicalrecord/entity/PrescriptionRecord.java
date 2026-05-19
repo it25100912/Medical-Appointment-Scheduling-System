@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
-@DiscriminatorValue("PRESCRIPTION")//Identifies this subtype in single-table inheritance
+@DiscriminatorValue("PRESCRIPTION")
 @EqualsAndHashCode(callSuper = true)
 public class PrescriptionRecord extends MedicalRecord {
 
@@ -15,7 +15,6 @@ public class PrescriptionRecord extends MedicalRecord {
     private String dosage;
     private String duration;
 
-    // Returns formatted summary of prescription record
     @Override
     public String getRecordSummary() {
         return String.format("Prescription | Diagnosis: %s | Medicine: %s %s for %s",

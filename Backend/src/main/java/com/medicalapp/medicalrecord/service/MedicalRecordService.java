@@ -27,7 +27,6 @@ public class MedicalRecordService implements IMedicalRecordService {
     public MedicalRecordDTO addRecord(MedicalRecordDTO dto) {
         PrescriptionRecord record = new PrescriptionRecord();
         
-         // Find and assign patient
         record.setPatient(patientRepository.findById(dto.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
         record.setDoctor(doctorRepository.findById(dto.getDoctorId())
@@ -110,27 +109,22 @@ public class MedicalRecordService implements IMedicalRecordService {
 
     @Override
     public void deleteRecord(Long id) {
-
-         // Check whether record exists
         if (!medicalRecordRepository.existsById(id)) {
             throw new ResourceNotFoundException("Record not found");
         }
         medicalRecordRepository.deleteById(id);
     }
 
-     // Convert MedicalRecord entity into DTO
     private MedicalRecordDTO mapEntityToDto(MedicalRecord r) {
         MedicalRecordDTO dto = new MedicalRecordDTO();
         dto.setId(r.getId());
         
-        // Set patient ID
         if (r.getPatient() != null) {
             dto.setPatientId(r.getPatient().getId());
         } else if (r.getPatientId() != null) {
             dto.setPatientId(r.getPatientId());
         }
         
-         // Set doctor ID
         if (r.getDoctor() != null) {
             dto.setDoctorId(r.getDoctor().getId());
         } else if (r.getDoctorId() != null) {

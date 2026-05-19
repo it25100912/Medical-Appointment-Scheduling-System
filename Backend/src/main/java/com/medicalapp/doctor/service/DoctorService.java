@@ -120,14 +120,23 @@ public class DoctorService implements IDoctorService {
         // Update password if provided
         if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
             existing.setPassword(passwordEncoder.encode(dto.getPassword()));
-            // Also update User record password
-            userRepository.findByEmail(existing.getEmail()).ifPresent(user -> {
-                user.setPassword(passwordEncoder.encode(dto.getPassword()));
-                userRepository.save(user);
-            });
         }
         
-        return mapEntityToDto(doctorRepository.save(existing));
+        Doctor saved = doctorRepository.save(existing);
+        
+        // Also update corresponding User record
+        userRepository.findById(id).ifPresent(user -> {
+            user.setEmail(saved.getEmail());
+            user.setName(saved.getName());
+            user.setPhone(saved.getPhone());
+            user.setLicenseNumber(saved.getLicenseNumber());
+            if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
+                user.setPassword(saved.getPassword());
+            }
+            userRepository.save(user);
+        });
+        
+        return mapEntityToDto(saved);
     }
 
     @Override
