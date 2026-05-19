@@ -2,16 +2,15 @@ package com.medicalapp.medicalrecord.service;
 
 import com.medicalapp.medicalrecord.dto.MedicalRecordDTO;
 import com.medicalapp.medicalrecord.entity.*;
-import com.medicalapp.doctor.entity.Doctor;
-import com.medicalapp.patient.repository.FilePatientRepository;
 import com.medicalapp.doctor.repository.FileDoctorRepository;
+import com.medicalapp.patient.repository.FilePatientRepository;
 import com.medicalapp.medicalrecord.repository.FileMedicalRecordRepository;
 import com.medicalapp.common.exception.ResourceNotFoundException;
-import com.medicalapp.common.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,16 +25,23 @@ public class MedicalRecordService implements IMedicalRecordService {
 
     @Override
     public MedicalRecordDTO addRecord(MedicalRecordDTO dto) {
-        MedicalRecord record = new PrescriptionRecord();
-        record.setPatientId(dto.getPatientId());
-        record.setDoctorId(dto.getDoctorId());
+        PrescriptionRecord record = new PrescriptionRecord();
+        
+         // Find and assign patient
+        record.setPatient(patientRepository.findById(dto.getPatientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
+        record.setDoctor(doctorRepository.findById(dto.getDoctorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found")));
+        
+        record.setRecordDate(dto.getRecordDate() != null ? dto.getRecordDate() : LocalDate.now());
         record.setDiagnosis(dto.getDiagnosis());
         
         String prescription = dto.getMedicineName() != null ? dto.getMedicineName() : "";
-        if (dto.getDosage() != null) prescription += " (" + dto.getDosage() + ")";
+        if (dto.getDosage() != null && !dto.getDosage().isEmpty()) prescription += " (" + dto.getDosage() + ")";
         record.setPrescription(prescription);
         
         record.setNotes(dto.getSummary());
+        record.setRecordType(MedicalRecord.RecordType.PRESCRIPTION);
 
         MedicalRecord saved = medicalRecordRepository.save(record);
         dto.setId(saved.getId());
@@ -58,16 +64,14 @@ public class MedicalRecordService implements IMedicalRecordService {
 
     @Override
     public List<MedicalRecordDTO> getRecordsByPatient(Long patientId) {
-        return medicalRecordRepository.findAll().stream()
-                .filter(r -> r.getPatientId().equals(patientId))
+        return medicalRecordRepository.findByPatientId(patientId).stream()
                 .map(this::mapEntityToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<MedicalRecordDTO> getRecordsByDoctor(Long doctorId) {
-        return medicalRecordRepository.findAll().stream()
-                .filter(r -> r.getDoctorId().equals(doctorId))
+        return medicalRecordRepository.findByDoctorId(doctorId).stream()
                 .map(this::mapEntityToDto)
                 .collect(Collectors.toList());
     }
@@ -84,8 +88,15 @@ public class MedicalRecordService implements IMedicalRecordService {
         MedicalRecord existing = medicalRecordRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Record not found"));
         
-        if (dto.getPatientId() != null) existing.setPatientId(dto.getPatientId());
-        if (dto.getDoctorId() != null) existing.setDoctorId(dto.getDoctorId());
+        if (dto.getPatientId() != null) {
+            existing.setPatient(patientRepository.findById(dto.getPatientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
+        }
+        if (dto.getDoctorId() != null) {
+            existing.setDoctor(doctorRepository.findById(dto.getDoctorId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Doctor not found")));
+        }
+        if (dto.getRecordDate() != null) existing.setRecordDate(dto.getRecordDate());
         if (dto.getDiagnosis() != null) existing.setDiagnosis(dto.getDiagnosis());
         
         String prescription = dto.getMedicineName() != null ? dto.getMedicineName() : "";
@@ -99,20 +110,38 @@ public class MedicalRecordService implements IMedicalRecordService {
 
     @Override
     public void deleteRecord(Long id) {
+
+         // Check whether record exists
         if (!medicalRecordRepository.existsById(id)) {
             throw new ResourceNotFoundException("Record not found");
         }
         medicalRecordRepository.deleteById(id);
     }
 
+     // Convert MedicalRecord entity into DTO
     private MedicalRecordDTO mapEntityToDto(MedicalRecord r) {
         MedicalRecordDTO dto = new MedicalRecordDTO();
         dto.setId(r.getId());
-        dto.setPatientId(r.getPatientId());
-        dto.setDoctorId(r.getDoctorId());
+        
+        // Set patient ID
+        if (r.getPatient() != null) {
+            dto.setPatientId(r.getPatient().getId());
+        } else if (r.getPatientId() != null) {
+            dto.setPatientId(r.getPatientId());
+        }
+        
+         // Set doctor ID
+        if (r.getDoctor() != null) {
+            dto.setDoctorId(r.getDoctor().getId());
+        } else if (r.getDoctorId() != null) {
+            dto.setDoctorId(r.getDoctorId());
+        }
+        
         dto.setDiagnosis(r.getDiagnosis());
         dto.setMedicineName(r.getPrescription());
         dto.setSummary(r.getNotes());
+        dto.setRecordDate(r.getRecordDate());
+        dto.setRecordType(r.getRecordType());
         return dto;
     }
 }
