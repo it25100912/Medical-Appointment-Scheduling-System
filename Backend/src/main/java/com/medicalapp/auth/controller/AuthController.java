@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+// OOP: Controller handles requests
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -34,6 +35,7 @@ public class AuthController {
     private final FileDoctorRepository doctorRepository;
 
     @PostMapping("/login")
+    // OOP: Authentication delegation
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(

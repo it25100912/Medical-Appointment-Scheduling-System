@@ -19,12 +19,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+// Interface implementation
 public class AdminService implements IAdminService {
 
     private final FileAdminRepository adminRepository;
     private final FileUserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    // Overriding interface method
     @Override
     public AdminResponseDTO createAdmin(AdminRequestDTO dto) {
         Admin admin = new Admin();

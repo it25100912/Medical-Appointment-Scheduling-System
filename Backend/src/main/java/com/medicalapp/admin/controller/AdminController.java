@@ -16,11 +16,14 @@ import java.util.Map;
 @RequestMapping("/api/admins")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+// Annotation: REST controller
 public class AdminController {
 
+    // Polymorphism via interface
     private final IAdminService adminService;
 
     @PostMapping
+    // Annotation: method mapping
     public ResponseEntity<AdminResponseDTO> createAdmin(@Valid @RequestBody AdminRequestDTO dto) {
         return new ResponseEntity<>(adminService.createAdmin(dto), HttpStatus.CREATED);
     }
