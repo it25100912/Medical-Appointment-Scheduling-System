@@ -9,8 +9,15 @@
     } else if (user && publicPages.some(p => path.endsWith(p))) {
         try {
             const userData = JSON.parse(user);
+<<<<<<< HEAD
             if (userData.role === 'PATIENT' || userData.role === 'DOCTOR') {
                 window.location.href = 'appointments.html';
+=======
+            if (userData.role === 'PATIENT') {
+                window.location.href = 'patient-profile.html';
+            } else if (userData.role === 'DOCTOR') {
+                window.location.href = 'doctor-profile.html';
+>>>>>>> Billing
             } else {
                 window.location.href = 'index.html';
             }
@@ -238,12 +245,20 @@ function checkAuth() {
             // Patients should only see Profile, Appointments, Invoices, Medical Records and Logout
             const restrictedPages = ['admin.html', 'patients.html', 'doctors.html', 'index.html'];
             if (restrictedPages.some(p => path.endsWith(p))) {
+<<<<<<< HEAD
                 window.location.href = 'appointments.html';
+=======
+                window.location.href = 'patient-profile.html';
+>>>>>>> Billing
             }
 
             const sidebarLinks = document.querySelector('.nav-links');
             if (sidebarLinks) {
                 sidebarLinks.innerHTML = `
+<<<<<<< HEAD
+=======
+                    <a href="patient-profile.html" class="nav-item"><i class="fas fa-id-card"></i> <span>Profile</span></a>
+>>>>>>> Billing
                     <a href="appointments.html" class="nav-item"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a>
                     <a href="billing.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> <span>Invoices</span></a>
                     <a href="records.html" class="nav-item"><i class="fas fa-file-medical"></i> <span>Medical Records</span></a>
@@ -265,12 +280,20 @@ function checkAuth() {
             // Doctors should only see Profile, Appointments, Medical Records and Logout
             const restrictedPages = ['admin.html', 'patients.html', 'doctors.html', 'billing.html', 'index.html'];
             if (restrictedPages.some(p => path.endsWith(p))) {
+<<<<<<< HEAD
                 window.location.href = 'appointments.html';
+=======
+                window.location.href = 'doctor-profile.html';
+>>>>>>> Billing
             }
 
             const sidebarLinks = document.querySelector('.nav-links');
             if (sidebarLinks) {
                 sidebarLinks.innerHTML = `
+<<<<<<< HEAD
+=======
+                    <a href="doctor-profile.html" class="nav-item"><i class="fas fa-user-md"></i> <span>My Profile</span></a>
+>>>>>>> Billing
                     <a href="appointments.html" class="nav-item"><i class="fas fa-calendar-alt"></i> <span>Appointments</span></a>
                     <a href="records.html" class="nav-item"><i class="fas fa-file-medical"></i> <span>Medical Records</span></a>
                     <a href="#" class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
@@ -290,12 +313,19 @@ function checkAuth() {
     }
 }
 
+<<<<<<< HEAD
 async function logout() {
     if (await showCustomConfirm('Are you sure you want to logout?')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = 'login.html';
     }
+=======
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+>>>>>>> Billing
 }
 
 function showCustomConfirm(message) {
@@ -339,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     initGlobalSearch();
     
+<<<<<<< HEAD
     // Add navigation listener to user profile picture & name button (top-right header)
     const avatar = document.querySelector('.user-profile');
     if (avatar) {
@@ -356,6 +387,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = 'admin.html';
                 }
             }
+=======
+    // Add logout listener to avatar or similar if needed
+    const avatar = document.querySelector('.user-profile');
+    if (avatar) {
+        avatar.style.cursor = 'pointer';
+        avatar.title = 'Click to Logout';
+        avatar.addEventListener('click', async () => {
+            if (await showCustomConfirm('Are you sure you want to logout?')) logout();
+>>>>>>> Billing
         });
     }
 });

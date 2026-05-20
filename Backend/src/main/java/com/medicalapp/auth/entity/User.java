@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+<<<<<<< HEAD
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,6 +19,9 @@ import java.util.List;
 @Table(name = "users")
 @EqualsAndHashCode(callSuper = true)
 public class User extends BaseEntity implements UserDetails {
+=======
+public class User {
+>>>>>>> Billing
 
     @Column(unique = true)
     private String email;
@@ -34,6 +38,10 @@ public class User extends BaseEntity implements UserDetails {
         ADMIN, DOCTOR, PATIENT
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> Billing
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
