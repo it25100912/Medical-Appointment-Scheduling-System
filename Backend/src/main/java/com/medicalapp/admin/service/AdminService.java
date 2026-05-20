@@ -3,11 +3,7 @@ package com.medicalapp.admin.service;
 import com.medicalapp.admin.dto.AdminRequestDTO;
 import com.medicalapp.admin.dto.AdminResponseDTO;
 import com.medicalapp.admin.entity.Admin;
-<<<<<<< HEAD
 import com.medicalapp.admin.repository.FileAdminRepository;
-=======
-import com.medicalapp.admin.repository.AdminRepository;
->>>>>>> Billing
 import com.medicalapp.auth.entity.User;
 import com.medicalapp.auth.repository.FileUserRepository;
 import com.medicalapp.common.exception.ResourceNotFoundException;
@@ -25,11 +21,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class AdminService implements IAdminService {
 
-<<<<<<< HEAD
     private final FileAdminRepository adminRepository;
-=======
-    private final AdminRepository adminRepository;
->>>>>>> Billing
     private final FileUserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -59,7 +51,6 @@ public class AdminService implements IAdminService {
 
     @Override
     public List<AdminResponseDTO> getAllAdmins() {
-<<<<<<< HEAD
         List<AdminResponseDTO> list = adminRepository.findAll().stream()
                 .map(this::mapEntityToResponseDto)
                 .collect(Collectors.toList());
@@ -81,16 +72,10 @@ public class AdminService implements IAdminService {
                 });
 
         return list;
-=======
-        return adminRepository.findAll().stream()
-                .map(this::mapEntityToResponseDto)
-                .collect(Collectors.toList());
->>>>>>> Billing
     }
 
     @Override
     public AdminResponseDTO getAdminById(Long id) {
-<<<<<<< HEAD
         return adminRepository.findById(id)
                 .map(this::mapEntityToResponseDto)
                 .orElseGet(() -> userRepository.findById(id)
@@ -103,16 +88,10 @@ public class AdminService implements IAdminService {
                             dto.setRole(Admin.AdminRole.ADMIN);
                             return dto;
                         }).orElseThrow(() -> new ResourceNotFoundException("Admin not found with ID: " + id)));
-=======
-        Admin admin = adminRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
-        return mapEntityToResponseDto(admin);
->>>>>>> Billing
     }
 
     @Override
     public AdminResponseDTO updateAdmin(Long id, AdminRequestDTO dto) {
-<<<<<<< HEAD
         Admin existing = adminRepository.findById(id).orElse(null);
 
         if (existing == null) {
@@ -145,16 +124,11 @@ public class AdminService implements IAdminService {
 
             return mapEntityToResponseDto(saved);
         }
-=======
-        Admin existing = adminRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
->>>>>>> Billing
 
         existing.setUsername(dto.getUsername());
         existing.setEmail(dto.getEmail());
         existing.setRole(dto.getRole());
 
-<<<<<<< HEAD
         if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
             existing.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
@@ -169,15 +143,6 @@ public class AdminService implements IAdminService {
             if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
                 user.setPassword(saved.getPassword());
             }
-=======
-        Admin saved = adminRepository.save(existing);
-
-        // update corresponding User record if present
-        userRepository.findById(saved.getId()).ifPresent(user -> {
-            user.setEmail(saved.getEmail());
-            user.setName(saved.getUsername());
-            user.setRole(User.Role.ADMIN);
->>>>>>> Billing
             userRepository.save(user);
         });
 
@@ -186,22 +151,16 @@ public class AdminService implements IAdminService {
 
     @Override
     public void deleteAdmin(Long id) {
-<<<<<<< HEAD
         Long currentAdminId = com.medicalapp.common.util.SecurityUtils.getCurrentUserId();
         if (id.equals(currentAdminId)) {
             throw new IllegalStateException("You cannot delete your own admin account.");
         }
         adminRepository.deleteById(id);
-=======
-        adminRepository.deleteById(id);
-        // remove user record if exists
->>>>>>> Billing
         userRepository.deleteById(id);
     }
 
     @Override
     public void changePassword(Long id, String oldPassword, String newPassword) {
-<<<<<<< HEAD
         Admin admin = adminRepository.findById(id).orElse(null);
 
         if (admin == null) {
@@ -218,10 +177,6 @@ public class AdminService implements IAdminService {
             userRepository.save(user);
             return;
         }
-=======
-        Admin admin = adminRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
->>>>>>> Billing
 
         if (!passwordEncoder.matches(oldPassword, admin.getPassword())) {
             throw new UnauthorizedException("Invalid old password");

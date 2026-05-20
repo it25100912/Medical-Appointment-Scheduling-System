@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-<<<<<<< HEAD
 @Repository
-=======
->>>>>>> Billing
 public class FileUserRepository {
     private final FileStorageUtil<User> storage = new FileStorageUtil<>("users.txt");
 
@@ -35,7 +32,6 @@ public class FileUserRepository {
         return findById(id).isPresent();
     }
 
-<<<<<<< HEAD
     public User save(User user) {
         List<User> users = findAll();
         if (user.getId() == null) {
@@ -109,7 +105,4 @@ public class FileUserRepository {
             return null;
         }
     }
-=======
-
->>>>>>> Billing
 }
