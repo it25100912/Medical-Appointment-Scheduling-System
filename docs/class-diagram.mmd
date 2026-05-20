@@ -1,0 +1,173 @@
+classDiagram
+direction LR
+
+class BaseEntity {
+  <<abstract>>
+  -Long id
+  -LocalDateTime createdAt
+  -LocalDateTime updatedAt
+}
+
+class AuthUser {
+  -String email
+  -String password
+  -String name
+  -String nic
+  -String phone
+  -String licenseNumber
+  -Role role
+  +getAuthorities()
+  +getUsername()
+}
+
+class Admin {
+  -String username
+  -String email
+  -String password
+  -AdminRole role
+}
+
+class Patient {
+  -String name
+  -String nic
+  -String phone
+  -String email
+  -String address
+  -String bloodGroup
+  -String dateOfBirth
+  -String password
+  -String medicalHistory
+  -PatientType patientType
+}
+
+class InPatient
+class OutPatient
+
+class Doctor {
+  <<abstract>>
+  -String name
+  -String email
+  -String phone
+  -String specialization
+  -DoctorType doctorType
+  -Double consultationFee
+  -String licenseNumber
+  -Integer experience
+  -String availableDays
+  -LocalTime availableFrom
+  -LocalTime availableTo
+  -String password
+  +calculateConsultationFee() double
+}
+
+class GeneralDoctor {
+  +calculateConsultationFee() double
+}
+
+class SpecialistDoctor {
+  -String specialistArea
+  +calculateConsultationFee() double
+}
+
+class Appointment {
+  -LocalDate appointmentDate
+  -LocalTime appointmentTime
+  -Long patientId
+  -Long doctorId
+  -String reason
+  -AppointmentStatus status
+  -AppointmentType type
+  -String notes
+  +getPatientId() Long
+  +getDoctorId() Long
+}
+
+class MedicalRecord {
+  <<abstract>>
+  -LocalDate recordDate
+  -String diagnosis
+  -Long patientId
+  -Long doctorId
+  -String prescription
+  -String notes
+  -RecordType recordType
+  +getRecordSummary() String
+}
+
+class PrescriptionRecord {
+  -String medicineName
+  -String dosage
+  -String duration
+  +getRecordSummary() String
+}
+
+class LabRecord {
+  -String testName
+  -String testResult
+  -String referenceRange
+  +getRecordSummary() String
+}
+
+class Billing {
+  -Double amount
+  -Long patientId
+  -String billingCategory
+  -PaymentType paymentType
+  -PaymentStatus status
+  -String invoiceNumber
+  -String paymentResult
+  -LocalDateTime paidAt
+}
+
+class Payment {
+  <<abstract>>
+  -Double amount
+  -LocalDateTime paidAt
+  +processPayment() String
+}
+
+class OnlinePayment {
+  -String transactionId
+  -String paymentGateway
+  +processPayment() String
+}
+
+class CashPayment {
+  -String receivedBy
+  -Double cashReceived
+  -Double changeGiven
+  +processPayment() String
+}
+
+class AuditLog {
+  -Long id
+  -String userId
+  -String action
+  -String description
+  -String status
+  -String reference
+  -LocalDateTime timestamp
+}
+
+BaseEntity <|-- AuthUser
+BaseEntity <|-- Admin
+BaseEntity <|-- Patient
+Patient <|-- InPatient
+Patient <|-- OutPatient
+BaseEntity <|-- Doctor
+Doctor <|-- GeneralDoctor
+Doctor <|-- SpecialistDoctor
+BaseEntity <|-- Appointment
+BaseEntity <|-- MedicalRecord
+MedicalRecord <|-- PrescriptionRecord
+MedicalRecord <|-- LabRecord
+BaseEntity <|-- Billing
+BaseEntity <|-- Payment
+Payment <|-- OnlinePayment
+Payment <|-- CashPayment
+
+Patient "1" <-- "0..*" Appointment : patient
+Doctor "1" <-- "0..*" Appointment : doctor
+Patient "1" <-- "0..*" MedicalRecord : patient
+Doctor "1" <-- "0..*" MedicalRecord : doctor
+Appointment "1" <-- "0..1" Billing : appointment
