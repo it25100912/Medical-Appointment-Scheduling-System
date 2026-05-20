@@ -25,22 +25,11 @@
 
         .left-panel {
             width: 50%;
-            display: flex;
-            justify-content: center;
-            background: #FFFFFF;
-            padding: 3rem 2rem;
-            overflow-y: auto;
-            box-sizing: border-box;
-        }
-
-        .left-panel-content {
-            max-width: 450px;
-            width: 100%;
-            margin: auto;
+            padding: 4rem 6rem;
             display: flex;
             flex-direction: column;
-            gap: 2.5rem;
-            box-sizing: border-box;
+            justify-content: space-between;
+            background: #FFFFFF;
         }
 
         .right-panel {
@@ -121,7 +110,9 @@
         }
 
         .form-container {
+            max-width: 420px;
             width: 100%;
+            margin: auto 0;
         }
 
         .form-sub {
@@ -340,41 +331,46 @@
         
         <!-- Left Panel containing Form -->
         <div class="left-panel">
-            <div class="left-panel-content">
-                
-                <header class="logo-section">
-                    <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
-                    <span class="logo-text">MediSync</span>
-                </header>
+            
+            <header class="logo-section">
+                <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                <span class="logo-text">MediSync</span>
+            </header>
 
-                <div class="form-container">
-                    <!-- <p class="form-sub">Start your journey</p> -->
-                    <h1 class="form-title">Sign In to MediSync</h1>
+            <div class="form-container">
+                <!-- <p class="form-sub">Start your journey</p> -->
+                <h1 class="form-title">Sign In to MediSync</h1>
 
-                    <form id="login-form">
-                        <div class="form-group">
-                            <label>E-mail</label>
-                            <input type="email" id="email" placeholder="someone@example.com" required>
-                            <i class="far fa-envelope field-icon"></i>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="password" placeholder="••••••••" required>
-                            <i class="far fa-eye field-icon"></i>
-                        </div>
-
-                        <button type="submit" class="btn-submit">
-                            Sign In <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </form>
-                                    
+                <!-- Role Selection Tabs -->
+                <div class="role-tabs" id="role-selector">
+                    <div class="role-tab active" data-role="ADMIN">Admin</div>
+                    <div class="role-tab" data-role="DOCTOR">Doctor</div>
+                    <div class="role-tab" data-role="PATIENT">Patient</div>
                 </div>
 
-                <footer class="footer-link-text">
-                    Don't have an account? <a href="signup.html">Register</a>
-                </footer>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" id="email" placeholder="someone@example.com" required>
+                        <i class="far fa-envelope field-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                        <i class="far fa-eye field-icon"></i>
+                    </div>
 
+                    <button type="submit" class="btn-submit">
+                        Sign In <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+                                
             </div>
+
+            <footer class="footer-link-text">
+                Don't have an account? <a href="signup.html">Register</a>
+            </footer>
+
         </div>
 
         <!-- Right Panel containing Fluid Marble Backdrop -->
@@ -389,10 +385,13 @@
 
     <script src="js/common.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem('reg_success') === 'true') {
-                showToast('Registration successful! You can now log in.', 'success');
-                sessionStorage.removeItem('reg_success');
+        let selectedRole = 'ADMIN';
+        
+        document.getElementById('role-selector').addEventListener('click', (e) => {
+            if (e.target.classList.contains('role-tab')) {
+                document.querySelectorAll('.role-tab').forEach(opt => opt.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedRole = e.target.dataset.role;
             }
         });
 
@@ -414,8 +413,10 @@
                 showToast(`Welcome back, ${response.name}!`, 'success');
                 
                 setTimeout(() => {
-                    if (response.role === 'PATIENT' || response.role === 'DOCTOR') {
-                        window.location.href = 'appointments.html';
+                    if (response.role === 'PATIENT') {
+                        window.location.href = 'patient-profile.html';
+                    } else if (response.role === 'DOCTOR') {
+                        window.location.href = 'doctor-profile.html';
                     } else {
                         window.location.href = 'index.html';
                     }

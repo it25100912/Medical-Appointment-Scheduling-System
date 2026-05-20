@@ -3,11 +3,7 @@ package com.medicalapp.auth.controller;
 import com.medicalapp.auth.config.JwtUtils;
 import com.medicalapp.auth.entity.User;
 import com.medicalapp.auth.repository.FileUserRepository;
-import com.medicalapp.patient.entity.Patient;
-import com.medicalapp.patient.repository.FilePatientRepository;
-import com.medicalapp.doctor.entity.Doctor;
-import com.medicalapp.doctor.entity.GeneralDoctor;
-import com.medicalapp.doctor.repository.FileDoctorRepository;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -34,6 +30,7 @@ public class AuthController {
     private final FileDoctorRepository doctorRepository;
 
     @PostMapping("/login")
+    // OOP: Authentication delegation
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -98,7 +95,6 @@ public class AuthController {
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
-
     @Data
     @AllArgsConstructor
     public static class MessageResponse {
@@ -135,5 +131,6 @@ public class AuthController {
         private String dateOfBirth;
         private String bloodGroup;
         private String address;
-    }
+    }   
+
 }

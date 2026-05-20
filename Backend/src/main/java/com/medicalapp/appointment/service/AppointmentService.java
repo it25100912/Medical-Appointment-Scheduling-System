@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+// OOP: Service abstraction
 public class AppointmentService implements IAppointmentService {
     private final FileAppointmentRepository appointmentRepository;
     private final com.medicalapp.patient.repository.FilePatientRepository patientRepository;
@@ -26,6 +27,7 @@ public class AppointmentService implements IAppointmentService {
 
     @Override
     public AppointmentDTO bookAppointment(AppointmentDTO dto) {
+        // OOP: Encapsulation in action
         Appointment app = mapDtoToEntity(dto);
         app.setStatus(Appointment.AppointmentStatus.CONFIRMED);
         Appointment savedApp = appointmentRepository.save(app);
