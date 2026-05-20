@@ -41,7 +41,7 @@
                 <div class="user-profile">
                     <div class="user-info">
                         <p class="user-name">Administrator</p>
-                        <p class="user-role">System Level 4</p>
+                        <!-- <p class="user-role">System Level 4</p> -->
                     </div>
                     <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563eb&color=white" class="user-avatar" alt="Admin">
                 </div>
@@ -91,7 +91,7 @@
                     </div>
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" id="adm-email" placeholder="admin@medisync.pro" required>
+                        <input type="email" id="adm-email" placeholder="someone@example.com" required>
                     </div>
                     <div class="form-group">
                         <label>Access Credential (Password)</label>
@@ -101,7 +101,6 @@
                         <label>Administrative Role</label>
                         <select id="adm-role">
                             <option value="ADMIN">System Administrator</option>
-                            <option value="SUPER_ADMIN">Regional Super Admin</option>
                         </select>
                     </div>
                 </div>
@@ -115,6 +114,7 @@
 
     <script src="js/common.js"></script>
     <script>
+        const currentUser = JSON.parse(localStorage.getItem('user'));
         window.allAdmins = [];
 
         async function loadAdmins() {
@@ -133,7 +133,7 @@
             const filtered = allAdmins.filter(a => {
                 const user = (a.username || '').toLowerCase();
                 const email = (a.email || '').toLowerCase();
-                const role = (a.role || '').toLowerCase();
+                const role = "ADMIN";
                 
                 return user.includes(searchTerm) || 
                        email.includes(searchTerm) || 
@@ -147,20 +147,23 @@
                 return;
             }
 
-            tbody.innerHTML = filtered.map(a => `
-                <tr>
-                    <td><span class="user-name">${a.username}</span></td>
-                    <td><span class="user-name">${a.email}</span></td>
-                    <td><span class="info-tag">${a.role}</span></td>
-                    <td><span class="status-badge CONFIRMED">Active</span></td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="btn-action-light" onclick="editAdmin(${a.id})"><i class="fas fa-edit"></i></button>
-                            <button class="btn-action-light delete" onclick="deleteAdmin(${a.id})"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = filtered.map(a => {
+                const isSelf = currentUser && (currentUser.id == a.id);
+                return `
+                    <tr>
+                        <td><span class="user-name">${a.username}</span></td>
+                        <td><span class="user-name">${a.email}</span></td>
+                        <td><span class="info-tag">${a.role}</span></td>
+                        <td><span class="status-badge CONFIRMED">Active</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-action-light" onclick="editAdmin(${a.id})"><i class="fas fa-edit"></i></button>
+                                ${isSelf ? '' : `<button class="btn-action-light delete" onclick="deleteAdmin(${a.id})"><i class="fas fa-trash-alt"></i></button>`}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         // Live Search Handler
@@ -209,7 +212,7 @@
 
             const data = {
                 username: document.getElementById('adm-user').value,
-                email: document.getElementById('adm-email').value,
+                email: document.getElementById('adm-email').value,                
                 role: document.getElementById('adm-role').value
             };
             
@@ -234,6 +237,10 @@
         });
 
         async function deleteAdmin(id) {
+            if (currentUser && currentUser.id == id) {
+                showToast('You cannot delete your own admin account.', 'error');
+                return;
+            }
             if (await showCustomConfirm('Are you sure you want to revoke all administrative access for this user?')) {
                 try {
                     await apiFetch(`/admins/${id}`, 'DELETE');
