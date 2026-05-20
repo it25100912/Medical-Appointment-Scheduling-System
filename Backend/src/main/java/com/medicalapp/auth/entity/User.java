@@ -10,7 +10,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public class User {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "users")
+@EqualsAndHashCode(callSuper = true)
+public class User extends BaseEntity implements UserDetails {
 
     @Column(unique = true)
     private String email;
@@ -26,7 +33,6 @@ public class User {
     public enum Role {
         ADMIN, DOCTOR, PATIENT
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
